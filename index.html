@@ -45,7 +45,7 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* Print Container (Formal KOP Surat PDF Generation) */
+        /* Print Container Fix: Menggunakan opacity 0 agar tetap dirender browser */
         #print-container { position: fixed; left: 0; top: 0; width: 210mm; min-height: 297mm; background: white; z-index: -99999; opacity: 0; pointer-events: none; padding: 15mm 20mm; box-sizing: border-box; }
         
         /* Dropdown Animation */
@@ -88,7 +88,7 @@
 
         <!-- Konten Utama PDF -->
         <div id="pdf-content" class="mb-8 text-xs leading-relaxed">
-            <!-- Tabel & data akan diinjeksi secara dinamis lewat JS -->
+            <!-- Tabel & data diinjeksi dinamis -->
         </div>
 
         <!-- Tanda Tangan Block Resmi -->
@@ -105,8 +105,7 @@
                 <div class="text-center w-5/12">
                     <p>&nbsp;</p>
                     <p class="font-bold">Dosen Pendamping Lapangan</p>
-                    <p>PPG Prajabatan BK</p>
-					<p>SMA Negeri 12 Kota Bandung</p>
+                    <p>PPG Prajabatan Bimbingan dan Konseling</p>
                     <div class="h-16"></div>
                     <p class="font-bold underline">Drs. Sudaryat Nurdin Akhmad, M.Pd.</p>
                     <p>NIP. 19630630 199512 1 001</p>
@@ -153,7 +152,7 @@
                         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                             <i class="fas fa-id-badge text-sm"></i>
                         </span>
-                        <input type="text" id="nimInput" class="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2.5 rounded-xl focus:outline-none focus:border-bk-500 focus:ring-2 focus:ring-bk-100 transition-all font-semibold text-slate-800 text-sm" placeholder="Masukkan NIM (Cth: 2530723)..." required>
+                        <input type="text" id="nimInput" class="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2.5 rounded-xl focus:outline-none focus:border-bk-500 focus:ring-2 focus:ring-bk-100 transition-all font-semibold text-slate-800 text-sm" placeholder="Masukkan NIM (masak gatau NIM sendiri)..." required>
                     </div>
                 </div>
                 <button type="submit" class="w-full bg-navy-800 hover:bg-navy-900 text-white font-bold py-3 rounded-xl shadow-md hover:shadow-lg transition-all btn-press text-xs flex items-center justify-center gap-2">
@@ -161,7 +160,7 @@
                 </button>
             </form>
             <div class="mt-6 text-center border-t border-slate-100 pt-4">
-                <p class="text-[10px] text-slate-400 font-semibold">Tahun Ajaran 2026/2027 • Kab. Bandung & Kota Bandung</p>
+                <p class="text-[10px] text-slate-400 font-semibold">Tahun Ajaran 2026/2027 • SMAN 12 Bandung</p>
             </div>
         </div>
     </div>
@@ -238,7 +237,7 @@
             </div>
             
             <div class="flex items-center gap-3">
-                <!-- Internal Notifications Dropdown -->
+                <!-- Notifications Dropdown -->
                 <div class="relative">
                     <button onclick="toggleNotif()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors relative btn-press">
                         <i class="fas fa-bell text-sm"></i>
@@ -652,14 +651,14 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase Config Placeholder (Users replace with their project config)
+        // Firebase Config Placeholder (Ganti dengan config proyek Firebase milikmu)
         const firebaseConfig = {
-		apiKey: "AIzaSyALUqI10cUB4dPXXTbVK87DJufugplm5zo",
-		authDomain: "pplppg-bk-sman12.firebaseapp.com",
-		projectId: "pplppg-bk-sman12",
-		storageBucket: "pplppg-bk-sman12.firebasestorage.app",
-		messagingSenderId: "754673750721",
-		appId: "1:754673750721:web:4ef5817e6a6aa6285fba40"
+            apiKey: "AIzaSyALUqI10cUB4dPXXTbVK87DJufugplm5zo",
+            authDomain: "pplppg-bk-sman12.firebaseapp.com",
+            projectId: "pplppg-bk-sman12",
+            storageBucket: "pplppg-bk-sman12.firebasestorage.app",
+            messagingSenderId: "754673750721",
+            appId: "1:754673750721:web:4ef5817e6a6aa6285fba40"
         };
 
         // Roster Data
@@ -906,9 +905,8 @@
 
             // Check if absent member is assigned to a main post today
             let todayName = new Date().toLocaleDateString('id-ID', { weekday: 'long' });
-            // Map day
             let matchedDay = currentScheduleData.days.find(d => d.day.toLowerCase() === todayName.toLowerCase() || todayName.includes(d.day));
-            if (!matchedDay) matchedDay = currentScheduleData.days[0]; // Fallback to current schedule day
+            if (!matchedDay) matchedDay = currentScheduleData.days[0]; // Fallback to schedule day
 
             let assignedPosIndex = matchedDay.posData.findIndex(p => p.name === absentMember);
             if (assignedPosIndex !== -1) {
@@ -1323,17 +1321,51 @@
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
             
-            printContainer.style.left = '0';
-            printContainer.style.zIndex = '9999';
+            // FIX BLANK PUTIH AMPUH: Sembunyikan UI web sementara agar html2canvas fokus 100% pada dokumen
+            const mainUI = document.querySelector('main');
+            const asideUI = document.querySelector('aside');
+            const mobileNav = document.querySelector('nav');
             
-            html2pdf().from(printContainer).set(opt).save().then(() => {
-                printContainer.style.left = '-9999px';
-                printContainer.style.zIndex = '-100';
-                showToast("Sukses", "Dokumen PDF berhasil diunduh.");
-            }).catch(err => {
-                printContainer.style.left = '-9999px';
-                showToast("Gagal", "Gagal mengeksport PDF.", false);
-            });
+            // Hapus class penahan layar dari Tailwind
+            document.body.classList.remove('overflow-hidden', 'h-screen', 'flex');
+            
+            // Sembunyikan komponen aplikasi
+            if (mainUI) mainUI.style.display = 'none';
+            if (asideUI) asideUI.style.display = 'none';
+            if (mobileNav) mobileNav.style.display = 'none';
+            
+            // Munculkan kontainer print sebagai elemen normal (bukan absolute)
+            printContainer.style.opacity = '1'; 
+            printContainer.style.display = 'block';
+            printContainer.style.position = 'relative';
+            printContainer.style.zIndex = '99999';
+            
+            window.scrollTo(0, 0);
+            
+            setTimeout(() => {
+                html2pdf().from(printContainer).set(opt).save().then(() => {
+                    // Kembalikan tampilan aplikasi seperti semula
+                    printContainer.style.opacity = '0';
+                    printContainer.style.display = 'none';
+                    printContainer.style.position = 'fixed';
+                    printContainer.style.zIndex = '-99999';
+                    
+                    document.body.classList.add('overflow-hidden', 'h-screen', 'flex');
+                    if (mainUI) mainUI.style.display = 'flex';
+                    if (asideUI) asideUI.style.display = 'flex';
+                    if (mobileNav) mobileNav.style.display = 'flex';
+                    
+                    showToast("Sukses", "Dokumen PDF berhasil diunduh.");
+                }).catch(err => {
+                    // Kembalikan jika error
+                    printContainer.style.opacity = '0';
+                    printContainer.style.display = 'none';
+                    document.body.classList.add('overflow-hidden', 'h-screen', 'flex');
+                    if (mainUI) mainUI.style.display = 'flex';
+                    if (asideUI) asideUI.style.display = 'flex';
+                    showToast("Gagal", "Gagal mengeksport PDF.", false);
+                });
+            }, 800); // Beri waktu render 0.8 detik agar tidak blank
         }
 
         window.switchTab = function(tabId) {
@@ -1356,7 +1388,7 @@
                 el.classList.remove('text-bk-600');
                 el.classList.add('text-slate-400');
             });
-            const mobileBtns = document.querySelectorAll(`.nav-btn-mobile[onclick*="${tabId}"]`);
+            const mobileBtns = document.getElementById(tabId) ? document.querySelectorAll(`.nav-btn-mobile[onclick*="${tabId}"]`) : [];
             mobileBtns.forEach(btn => {
                 btn.classList.remove('text-slate-400');
                 btn.classList.add('text-bk-600');
