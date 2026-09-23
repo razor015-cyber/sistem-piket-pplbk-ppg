@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Interaktif PPL BK SMAN 12</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] },
+                    colors: {
+                        brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 800: '#115e59', 900: '#134e4a' },
+                        ocean: { 500: '#3b82f6', 600: '#2563eb', 800: '#1e40af', 900: '#1e3a8a' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .tab-content { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased overflow-hidden">
+
+    <!-- Toast Notification (Replacement for Alert) -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform transition-all duration-300 translate-x-full opacity-0">
+        <div class="bg-white px-6 py-3 rounded-xl shadow-lg border-l-4 border-brand-500 flex items-center gap-3">
+            <i class="fas fa-check-circle text-brand-500 text-xl" id="toastIcon"></i>
+            <p id="toastMessage" class="font-medium text-slate-700">Pesan sukses</p>
+        </div>
+    </div>
+
+    <!-- Identity Selection Modal -->
+    <div id="identityModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity duration-300">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full mx-4 transform scale-95 transition-transform duration-300" id="identityCard">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-gradient-to-tr from-brand-500 to-ocean-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <i class="fas fa-user-graduate text-3xl text-white"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">Selamat Datang!</h2>
+                <p class="text-slate-500 mt-2">Pilih identitasmu untuk masuk ke Portal PPL BK SMAN 12 Bandung</p>
+            </div>
+            <div class="space-y-4">
+                <select id="userSelect" class="w-full border-2 border-slate-200 rounded-xl p-4 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition-all font-medium text-slate-700 appearance-none bg-slate-50">
+                    <option value="" disabled selected>-- Pilih Nama Mahasiswa --</option>
+                    <option value="Salsabila Syifa Al Farisy">Salsabila Syifa Al Farisy</option>
+                    <option value="Diaz Robigo">Diaz Robigo</option>
+                    <option value="Afwan Duta Ainullah">Afwan Duta Ainullah (Ketua/Admin)</option>
+                    <option value="Febrinda Nurlisa Efendi">Febrinda Nurlisa Efendi</option>
+                    <option value="Ahmad Iqbal">Ahmad Iqbal</option>
+                    <option value="Dandi Prayoga">Dandi Prayoga</option>
+                    <option value="AGNIS MEDINA">AGNIS MEDINA</option>
+                </select>
+                <button onclick="setIdentity()" class="w-full bg-gradient-to-r from-ocean-600 to-brand-500 hover:from-ocean-700 hover:to-brand-600 text-white font-bold py-4 rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1">
+                    Masuk ke Portal <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Layout -->
+    <div class="flex h-screen w-full relative">
+        
+        <!-- Sidebar (Modern Gradient) -->
+        <aside class="w-72 bg-gradient-to-b from-ocean-900 to-brand-900 text-white flex flex-col shadow-2xl z-10 hidden md:flex">
+            <div class="p-8 text-center border-b border-white/10 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                <div class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner border border-white/30">
+                    <i class="fas fa-school text-2xl"></i>
+                </div>
+                <h1 class="text-xl font-bold tracking-wide">PPL BK SMAN 12</h1>
+                <p class="text-xs text-brand-200 mt-2 bg-white/10 py-1 px-3 rounded-full inline-block">Ketua: Afwan Duta A.</p>
+            </div>
+            
+            <nav class="flex-1 p-4 space-y-2 overflow-y-auto mt-4">
+                <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center p-4 rounded-xl hover:bg-white/10 text-left transition-all group active-nav">
+                    <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center mr-3 group-hover:bg-brand-500 group-hover:shadow-lg transition-all"><i class="fas fa-home text-sm"></i></div>
+                    <span class="font-medium">Dashboard</span>
+                </button>
+                <button onclick="switchTab('jadwal')" class="nav-btn w-full flex items-center p-4 rounded-xl hover:bg-white/10 text-left transition-all group">
+                    <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center mr-3 group-hover:bg-brand-500 group-hover:shadow-lg transition-all"><i class="fas fa-calendar-alt text-sm"></i></div>
+                    <span class="font-medium">Jadwal & Tukar Piket</span>
+                </button>
+                <button onclick="switchTab('presensi')" class="nav-btn w-full flex items-center p-4 rounded-xl hover:bg-white/10 text-left transition-all group">
+                    <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center mr-3 group-hover:bg-brand-500 group-hover:shadow-lg transition-all"><i class="fas fa-clipboard-check text-sm"></i></div>
+                    <span class="font-medium">Presensi & Izin</span>
+                </button>
+                <button onclick="switchTab('ruangan')" class="nav-btn w-full flex items-center p-4 rounded-xl hover:bg-white/10 text-left transition-all group">
+                    <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center mr-3 group-hover:bg-brand-500 group-hover:shadow-lg transition-all"><i class="fas fa-door-open text-sm"></i></div>
+                    <span class="font-medium">Pinjam Ruang BK</span>
+                </button>
+                <button onclick="switchTab('diskusi')" class="nav-btn w-full flex items-center p-4 rounded-xl hover:bg-white/10 text-left transition-all group">
+                    <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center mr-3 group-hover:bg-brand-500 group-hover:shadow-lg transition-all"><i class="fas fa-comments text-sm"></i></div>
+                    <span class="font-medium">Ruang Diskusi <span id="chatBadge" class="ml-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">New</span></span>
+                </button>
+                
+                <div class="pt-4 mt-4 border-t border-white/10">
+                    <button onclick="switchTab('ai-assistant')" class="w-full flex items-center p-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-left transition-all group shadow-lg">
+                        <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center mr-3 animate-pulse"><i class="fas fa-robot text-sm"></i></div>
+                        <span class="font-semibold text-white tracking-wide">AI Asisten BK</span>
+                    </button>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
+            
+            <!-- Header -->
+            <header class="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 p-5 flex justify-between items-center z-10">
+                <h2 class="text-2xl font-bold text-slate-800 tracking-tight" id="pageTitle">Dashboard</h2>
+                <div class="flex items-center gap-4">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-xs text-slate-500">Login sebagai</p>
+                        <p class="text-sm font-bold text-ocean-600" id="headerUserName">Memuat...</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-brand-100 to-ocean-100 border-2 border-brand-500 flex items-center justify-center shadow-sm">
+                        <i class="fas fa-user text-brand-600 text-lg"></i>
+                    </div>
+                    <button onclick="logout()" class="text-slate-400 hover:text-red-500 transition ml-2" title="Ganti Akun"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </header>
+
+            <!-- Content Area (Scrollable) -->
+            <div class="flex-1 overflow-y-auto p-6 md:p-10 space-y-8 relative">
+                
+                <!-- Loading Indicator for Firebase -->
+                <div id="globalLoading" class="absolute inset-0 bg-slate-50/80 backdrop-blur-sm z-40 flex items-center justify-center">
+                    <div class="bg-white p-6 rounded-2xl shadow-xl flex items-center gap-4">
+                        <i class="fas fa-circle-notch fa-spin text-3xl text-brand-500"></i>
+                        <span class="font-medium text-slate-700">Menghubungkan ke Server...</span>
+                    </div>
+                </div>
+
+                <!-- 1. DASHBOARD TAB -->
+                <div id="dashboard" class="tab-content active space-y-8">
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="glass-card rounded-2xl p-6 relative overflow-hidden group">
+                            <div class="absolute top-0 right-0 w-24 h-24 bg-ocean-500/10 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                            <h3 class="text-slate-500 text-sm font-medium mb-1">Anggota Tim</h3>
+                            <div class="flex items-end gap-3">
+                                <p class="text-4xl font-black text-slate-800">7</p>
+                                <p class="text-sm text-ocean-600 font-medium mb-1">Mahasiswa</p>
+                            </div>
+                        </div>
+                        <div class="glass-card rounded-2xl p-6 relative overflow-hidden group">
+                            <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                            <h3 class="text-slate-500 text-sm font-medium mb-1">Persetujuan Pending</h3>
+                            <div class="flex items-end gap-3">
+                                <p class="text-4xl font-black text-amber-600" id="pendingCount">0</p>
+                                <p class="text-sm text-slate-400 font-medium mb-1">Permintaan</p>
+                            </div>
+                        </div>
+                        <div class="glass-card rounded-2xl p-6 relative overflow-hidden group">
+                            <div class="absolute top-0 right-0 w-24 h-24 bg-brand-500/10 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                            <h3 class="text-slate-500 text-sm font-medium mb-1">Hari Aktif PPL</h3>
+                            <p class="text-xl font-bold text-slate-800 mt-2">Senin, Selasa, Jumat</p>
+                            <p class="text-xs text-brand-600 mt-1"><i class="fas fa-clock mr-1"></i>06.30 - Selesai</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-8">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-10 h-10 rounded-xl bg-ocean-100 flex items-center justify-center text-ocean-600"><i class="fas fa-users"></i></div>
+                            <h3 class="text-xl font-bold text-slate-800">Daftar Mahasiswa PPL BK</h3>
+                        </div>
+                        <div class="overflow-hidden rounded-xl border border-slate-200">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 text-sm">
+                                        <th class="p-4 font-semibold border-b">Nama Lengkap</th>
+                                        <th class="p-4 font-semibold border-b">NIM</th>
+                                        <th class="p-4 font-semibold border-b">Peran</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentList" class="divide-y divide-slate-100 bg-white">
+                                    <!-- Rendered by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. JADWAL PIKET TAB -->
+                <div id="jadwal" class="tab-content space-y-8">
+                    <!-- Generator Section -->
+                    <div class="glass-card p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4 bg-gradient-to-r from-white to-brand-50/50">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fas fa-calendar-check text-brand-500"></i> Jadwal Piket Mingguan
+                            </h3>
+                            <p class="text-sm text-slate-500 mt-1">Pembagian 5 pos utama & 2 cadangan (Ruang BK).</p>
+                        </div>
+                        <!-- Hanya Admin yang bisa generate -->
+                        <button id="btnGenerateJadwal" onclick="generateSchedule()" class="hidden bg-ocean-600 text-white px-6 py-3 rounded-xl hover:bg-ocean-700 shadow-lg shadow-ocean-200 transition-all font-semibold whitespace-nowrap group">
+                            <i class="fas fa-magic mr-2 group-hover:rotate-12 transition-transform"></i> Acak Jadwal Baru
+                        </button>
+                    </div>
+
+                    <div id="scheduleContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Rendered by JS -->
+                        <div class="col-span-full text-center text-slate-400 py-12 bg-white rounded-2xl border border-dashed border-slate-300">
+                            <i class="fas fa-calendar-times text-4xl mb-3 text-slate-300"></i>
+                            <p>Jadwal belum tersedia. Menunggu Admin membuat jadwal.</p>
+                        </div>
+                    </div>
+
+                    <!-- Form Tukar Jadwal -->
+                    <div class="glass-card p-8 rounded-2xl mt-8 border-t-4 border-t-purple-500">
+                        <h3 class="text-xl font-bold text-slate-800 mb-6">Ajukan Tukar Jadwal</h3>
+                        <form id="swapForm" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-600 mb-2">Pengganti (Yang akan menggantikanmu)</label>
+                                <select id="swapPengganti" class="w-full border-2 border-slate-200 p-3 rounded-xl focus:border-purple-500 focus:ring-0 outline-none transition-colors bg-slate-50" required></select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-600 mb-2">Tanggal Asal (Jadwalmu)</label>
+                                <input type="date" id="swapTanggalAsal" class="w-full border-2 border-slate-200 p-3 rounded-xl focus:border-purple-500 outline-none transition-colors bg-slate-50" required>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-slate-600 mb-2">Alasan Tukar</label>
+                                <input type="text" id="swapAlasan" class="w-full border-2 border-slate-200 p-3 rounded-xl focus:border-purple-500 outline-none transition-colors bg-slate-50" placeholder="Contoh: Ada bimbingan DPL / Sakit" required>
+                            </div>
+                            <div class="md:col-span-2 flex justify-end mt-2">
+                                <button type="submit" class="bg-purple-600 text-white px-8 py-3 rounded-xl hover:bg-purple-700 shadow-lg shadow-purple-200 transition-all font-semibold">Kirim Pengajuan</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tabel Tukar Jadwal -->
+                    <div class="glass-card p-8 rounded-2xl">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4">Daftar Pengajuan Tukar Jadwal</h3>
+                        <div class="overflow-x-auto rounded-xl border border-slate-200">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 text-sm">
+                                        <th class="p-4 font-semibold border-b">Pemohon</th>
+                                        <th class="p-4 font-semibold border-b">Pengganti</th>
+                                        <th class="p-4 font-semibold border-b">Tanggal Asal</th>
+                                        <th class="p-4 font-semibold border-b">Status</th>
+                                        <th class="p-4 font-semibold border-b admin-only-col hidden">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="swapTableBody" class="divide-y divide-slate-100 bg-white">
+                                    <!-- Rendered by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2.5 PRESENSI TAB -->
+                <div id="presensi" class="tab-content space-y-8">
+                    <div class="glass-card p-8 rounded-2xl border-t-4 border-t-brand-500">
+                        <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2"><i class="fas fa-clipboard-list text-brand-500"></i> Form Kehadiran Harian</h3>
+                        <form id="presensiForm" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-600 mb-2">Status Kehadiran</label>
+                                <select id="presensiStatus" class="w-full border-2 border-slate-200 p-3 rounded-xl focus:border-brand-500 outline-none transition-colors bg-slate-50" required>
+                                    <option value="Hadir">Hadir (Tepat Waktu)</option>
+                                    <option value="Hadir Terlambat">Hadir (Terlambat)</option>
+                                    <option value="Izin">Izin (Halangan)</option>
+                                    <option value="Sakit">Sakit</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-600 mb-2">Keterangan / Alasan (Opsional)</label>
+                                <input type="text" id="presensiKet" class="w-full border-2 border-slate-200 p-3 rounded-xl focus:border-brand-500 outline-none transition-colors bg-slate-50" placeholder="Isi jika terlambat/izin/sakit">
+                            </div>
+                            <div class="md:col-span-2 flex justify-end mt-2">
+                                <button type="submit" class="bg-brand-600 text-white px-8 py-3 rounded-xl hover:bg-brand-700 shadow-lg shadow-brand-200 transition-all font-semibold">Submit Presensi</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="glass-card p-8 rounded-2xl">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4">Log Kehadiran Hari Ini</h3>
+                        <div class="overflow-x-auto rounded-xl border border-slate-200">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 text-sm">
+                                        <th class="p-4 font-semibold border-b">Waktu</th>
+                                        <th class="p-4 font-semibold border-b">Nama Mahasiswa</th>
+                                        <th class="p-4 font-semibold border-b">Status</th>
+                                        <th class="p-4 font-semibold border-b">Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="presensiTableBody" class="divide-y divide-slate-100 bg-white">
+                                    <!-- Rendered by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. PEMINJAMAN RUANG BK TAB -->
+                <div id="ruangan" class="tab-content space-y-8">
+                    <div class="glass-card p-8 rounded-2xl border-t-4 border-t-amber-500">
+                        <h3 class="text-xl font-bold text-slate-800 mb-6">Booking Ruang Konseling BK</h3>
+                        <form id="roomForm" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-600 mb-2">Nama Klien / Siswa</label>
+                                <input type="text" id="roomKlien" class="w-full border-2 border-slate-200 p-3 rounded-xl focus:border-amber-500 outline-none bg-slate-50" placeholder="Contoh: Budi (XI MIPA 2)" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-600 mb-2">Keperluan</label>
+                                <select id="roomKet" class="w-full border-2 border-slate-200 p-3 rounded-xl focus:border-amber-500 outline-none bg-slate-50" required>
+                                    <option value="Konseling Individu">Konseling Individu</option>
+                                    <option value="Konseling Kelompok">Konseling Kelompok</option>
+                                    <option value="Bimbingan Pribadi">Bimbingan Pribadi</option>
+                                    <option value="Lainnya">Lainnya</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-600 mb-2">Tanggal Pelaksanaan</label>
+                                <input type="date" id="roomTanggal" class="w-full border-2 border-slate-200 p-3 rounded-xl focus:border-amber-500 outline-none bg-slate-50" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-600 mb-2">Jam Pelaksanaan</label>
+                                <input type="time" id="roomJam" class="w-full border-2 border-slate-200 p-3 rounded-xl focus:border-amber-500 outline-none bg-slate-50" required>
+                            </div>
+                            <div class="md:col-span-2 flex justify-end mt-2">
+                                <button type="submit" class="bg-amber-500 text-white px-8 py-3 rounded-xl hover:bg-amber-600 shadow-lg shadow-amber-200 transition-all font-semibold text-slate-900">Ajukan Ruangan</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="glass-card p-8 rounded-2xl">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4">Jadwal Penggunaan Ruang</h3>
+                        <div class="overflow-x-auto rounded-xl border border-slate-200">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 text-sm">
+                                        <th class="p-4 font-semibold border-b">Waktu</th>
+                                        <th class="p-4 font-semibold border-b">Konselor</th>
+                                        <th class="p-4 font-semibold border-b">Siswa/Klien</th>
+                                        <th class="p-4 font-semibold border-b">Status</th>
+                                        <th class="p-4 font-semibold border-b admin-only-col hidden">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="roomTableBody" class="divide-y divide-slate-100 bg-white">
+                                    <!-- Rendered by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. RUANG DISKUSI TAB -->
+                <div id="diskusi" class="tab-content h-[calc(100vh-140px)]">
+                    <div class="glass-card rounded-2xl flex flex-col h-full overflow-hidden shadow-xl border border-slate-200">
+                        <div class="bg-gradient-to-r from-ocean-800 to-brand-800 p-4 text-white flex justify-between items-center">
+                            <h3 class="font-bold text-lg"><i class="fas fa-comments mr-2"></i> Grup Koordinasi PPL</h3>
+                            <span class="text-xs bg-white/20 px-3 py-1 rounded-full"><i class="fas fa-circle text-green-400 text-[8px] mr-1"></i> Online Realtime</span>
+                        </div>
+                        
+                        <!-- Chat Box -->
+                        <div id="chatBox" class="flex-1 p-6 overflow-y-auto space-y-6 bg-slate-50/50">
+                            <!-- Rendered by JS -->
+                        </div>
+
+                        <!-- Chat Input -->
+                        <form id="chatForm" class="p-4 bg-white border-t border-slate-200 flex gap-3 items-end">
+                            <div class="flex-1 bg-slate-100 rounded-2xl px-4 py-2 flex items-center border border-slate-200 focus-within:border-ocean-500 focus-within:ring-2 focus-within:ring-ocean-100 transition-all">
+                                <textarea id="chatInput" rows="1" class="w-full bg-transparent resize-none outline-none py-2 text-slate-700" placeholder="Ketik pesan info kesiswaan disini..." required></textarea>
+                            </div>
+                            <button type="submit" class="bg-ocean-600 h-12 w-12 rounded-full text-white flex items-center justify-center hover:bg-ocean-700 shadow-md transform hover:scale-105 transition-all flex-shrink-0">
+                                <i class="fas fa-paper-plane ml-1"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 5. AI ASISTEN BK TAB -->
+                <div id="ai-assistant" class="tab-content space-y-8">
+                    <div class="bg-gradient-to-r from-purple-900 to-indigo-900 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
+                        <div class="absolute top-0 right-0 opacity-10 text-9xl -mt-10 -mr-10"><i class="fas fa-brain"></i></div>
+                        <h2 class="text-3xl font-bold mb-2 relative z-10">Gemini AI BK Assistant</h2>
+                        <p class="text-purple-200 relative z-10">Asisten cerdas untuk membantu mempercepat administrasi dan analisis kasus di sekolah.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Fitur AI 1: Penyusun Laporan -->
+                        <div class="glass-card p-6 rounded-2xl flex flex-col h-full border border-purple-100 shadow-lg">
+                            <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center text-xl mb-4">
+                                <i class="fas fa-file-signature"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Penyusun Jurnal Piket</h3>
+                            <p class="text-sm text-slate-500 mb-4">Ketik singkat kegiatanmu, AI akan membuatkan narasi laporan jurnal formal.</p>
+                            
+                            <textarea id="aiReportInput" class="w-full border-2 border-slate-200 rounded-xl p-4 mb-4 flex-1 min-h-[120px] focus:border-purple-500 outline-none bg-slate-50 resize-none text-sm" placeholder="Contoh: Datang jam 06.30. Jaga gerbang. Ada 5 anak telat. Jam 10 bantu rekap absensi kelas X..."></textarea>
+                            
+                            <button onclick="generateAIReport()" id="btnGenerateReport" class="w-full bg-purple-600 text-white py-3 rounded-xl hover:bg-purple-700 shadow-md font-semibold transition-all">
+                                <i class="fas fa-magic mr-2"></i> Buat Laporan Formal
+                            </button>
+                            
+                            <div id="aiReportLoading" class="hidden mt-4 text-center text-purple-600 font-medium py-4">
+                                <i class="fas fa-circle-notch fa-spin mr-2"></i> Gemini sedang menyusun...
+                            </div>
+                            
+                            <div id="aiReportOutputContainer" class="hidden mt-4 flex-1 flex flex-col">
+                                <div id="aiReportOutput" class="p-4 bg-purple-50 border border-purple-100 rounded-xl text-sm text-slate-700 flex-1 overflow-y-auto leading-relaxed max-h-[300px]"></div>
+                                <button onclick="copyToClipboard('aiReportOutput')" class="mt-3 text-sm text-purple-600 font-semibold hover:text-purple-800 self-end"><i class="fas fa-copy mr-1"></i> Salin Teks</button>
+                            </div>
+                        </div>
+
+                        <!-- Fitur AI 2: Konsultasi Kasus -->
+                        <div class="glass-card p-6 rounded-2xl flex flex-col h-full border border-indigo-100 shadow-lg">
+                            <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-xl mb-4">
+                                <i class="fas fa-hands-helping"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Rekomendasi Penanganan Kasus</h3>
+                            <p class="text-sm text-slate-500 mb-4">Ceritakan kasus siswa, AI akan memberi saran pendekatan teori & taktik konseling.</p>
+                            
+                            <textarea id="aiCaseInput" class="w-full border-2 border-slate-200 rounded-xl p-4 mb-4 flex-1 min-h-[120px] focus:border-indigo-500 outline-none bg-slate-50 resize-none text-sm" placeholder="Contoh: Siswa kelas XI IPA sering bolos jam matematika karena cemas berlebihan thd gurunya..."></textarea>
+                            
+                            <button onclick="analyzeAICase()" id="btnAnalyzeCase" class="w-full bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-700 shadow-md font-semibold transition-all">
+                                <i class="fas fa-search-plus mr-2"></i> Analisis Kasus
+                            </button>
+                            
+                            <div id="aiCaseLoading" class="hidden mt-4 text-center text-indigo-600 font-medium py-4">
+                                <i class="fas fa-circle-notch fa-spin mr-2"></i> Gemini menganalisis...
+                            </div>
+                            
+                            <div id="aiCaseOutputContainer" class="hidden mt-4 flex-1 flex flex-col">
+                                <div id="aiCaseOutput" class="p-4 bg-indigo-50 border border-indigo-100 rounded-xl text-sm text-slate-700 flex-1 overflow-y-auto leading-relaxed max-h-[300px]"></div>
+                                <button onclick="copyToClipboard('aiCaseOutput')" class="mt-3 text-sm text-indigo-600 font-semibold hover:text-indigo-800 self-end"><i class="fas fa-copy mr-1"></i> Salin Teks</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        // Import Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+		apiKey: "AIzaSyALUqI10cUB4dPXXTbVK87DJufugplm5zo",
+		authDomain: "pplppg-bk-sman12.firebaseapp.com",
+		projectId: "pplppg-bk-sman12",
+		storageBucket: "pplppg-bk-sman12.firebasestorage.app",
+		messagingSenderId: "754673750721",
+		appId: "1:754673750721:web:4ef5817e6a6aa6285fba40"
+		};
+        // =========================================================================
+
+        // Constants & Global Data
+        const students = [
+            { id: "2530719", name: "Salsabila Syifa Al Farisy", role: "Anggota" },
+            { id: "2530722", name: "Diaz Robigo", role: "Anggota" },
+            { id: "2530723", name: "Afwan Duta Ainullah", role: "Ketua PPL" }, 
+            { id: "2530725", name: "Febrinda Nurlisa Efendi", role: "Anggota" },
+            { id: "2530727", name: "Ahmad Iqbal", role: "Anggota" },
+            { id: "2530730", name: "Dandi Prayoga", role: "Anggota" },
+            { id: "2530732", name: "Agnis Medina", role: "Anggota" }
+        ];
+        const days = ['Senin', 'Selasa', 'Jumat'];
+        const posts = ['Gerbang Utama', 'Lobby', 'KBM dan MBG', 'Sekre BK', 'Perpustakaan'];
+
+        // State Variables
+        let currentUser = null; 
+        let isAdmin = false;
+        let db, auth;
+        let firestoreUser = null; 
+        let activeTab = 'dashboard';
+
+        // Helper: Custom Toast Notification
+        window.showToast = function(msg, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            document.getElementById('toastMessage').innerText = msg;
+            
+            icon.className = isSuccess ? "fas fa-check-circle text-brand-500 text-xl" : "fas fa-exclamation-circle text-red-500 text-xl";
+            toast.className = "fixed top-5 right-5 z-50 transform transition-all duration-300 translate-x-0 opacity-100";
+            
+            setTimeout(() => {
+                toast.className = "fixed top-5 right-5 z-50 transform transition-all duration-300 translate-x-full opacity-0";
+            }, 3000);
+        }
+
+        // Initialize App & UI
+        function renderInitialUI() {
+            const tbody = document.getElementById('studentList');
+            const selectPengganti = document.getElementById('swapPengganti');
+            
+            students.forEach(s => {
+                const isAdminRole = s.role.includes('Ketua');
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-4 border-b font-medium text-slate-800">${s.name}</td>
+                        <td class="p-4 border-b text-slate-500">${s.id}</td>
+                        <td class="p-4 border-b">
+                            <span class="px-3 py-1 text-xs rounded-full ${isAdminRole ? 'bg-brand-100 text-brand-700 font-bold border border-brand-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">${s.role}</span>
+                        </td>
+                    </tr>`;
+                
+                selectPengganti.innerHTML += `<option value="${s.name}">${s.name}</option>`;
+            });
+
+            if (isAdmin) {
+                document.getElementById('btnGenerateJadwal').classList.remove('hidden');
+                document.querySelectorAll('.admin-only-col').forEach(el => el.classList.remove('hidden'));
+            }
+        }
+
+        window.checkIdentity = function() {
+            const savedUser = localStorage.getItem('currentUser_ppl_bk');
+            if (savedUser) {
+                currentUser = savedUser;
+                isAdmin = currentUser === "Afwan Duta Ainullah";
+                document.getElementById('headerUserName').innerText = currentUser;
+                document.getElementById('identityModal').classList.add('hidden');
+                renderInitialUI();
+                initFirebase(); 
+            } else {
+                document.getElementById('globalLoading').classList.add('hidden');
+            }
+        }
+
+        window.setIdentity = function() {
+            const select = document.getElementById('userSelect');
+            if (!select.value) {
+                showToast("Pilih namamu dulu ya!", false);
+                return;
+            }
+            localStorage.setItem('currentUser_ppl_bk', select.value);
+            document.getElementById('identityCard').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                checkIdentity();
+                showToast(`Selamat datang, ${select.value}!`);
+            }, 300);
+        }
+
+        window.logout = function() {
+            localStorage.removeItem('currentUser_ppl_bk');
+            location.reload();
+        }
+
+        async function initFirebase() {
+            document.getElementById('globalLoading').classList.remove('hidden');
+            
+            try {
+                // Initialize dengan Config milikmu
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Login sebagai Anonim (otomatis)
+                await signInAnonymously(auth);
+                
+                firestoreUser = auth.currentUser;
+                if(!firestoreUser) throw new Error("Gagal Autentikasi");
+
+                setupListeners();
+                document.getElementById('globalLoading').classList.add('hidden');
+
+            } catch (error) {
+                console.error("Firebase Error:", error);
+                document.getElementById('globalLoading').classList.add('hidden');
+                showToast("Gagal terhubung ke database. Cek Config Firebase-mu!", false);
+            }
+        }
+
+        function setupListeners() {
+            // 1. Listen Chats
+            onSnapshot(collection(db, `chats`), (snapshot) => {
+                let msgs = [];
+                snapshot.forEach(doc => msgs.push({ id: doc.id, ...doc.data() }));
+                msgs.sort((a, b) => a.timestamp - b.timestamp); 
+                renderChats(msgs);
+            }, (err) => console.error(err));
+
+            // 2. Listen Presensi
+            onSnapshot(collection(db, `presensi`), (snapshot) => {
+                let data = [];
+                snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
+                data.sort((a, b) => b.timestamp - a.timestamp); 
+                renderPresensi(data);
+            }, (err) => console.error(err));
+
+            // 3. Listen Ruangan
+            onSnapshot(collection(db, `rooms`), (snapshot) => {
+                let data = [];
+                let pending = 0;
+                snapshot.forEach(doc => {
+                    const d = { id: doc.id, ...doc.data() };
+                    data.push(d);
+                    if(d.status === 'Pending') pending++;
+                });
+                data.sort((a, b) => b.timestamp - a.timestamp);
+                document.getElementById('pendingCount').innerText = pending;
+                renderRooms(data);
+            }, (err) => console.error(err));
+
+            // 4. Listen Tukar Jadwal
+            onSnapshot(collection(db, `swaps`), (snapshot) => {
+                let data = [];
+                snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
+                data.sort((a, b) => b.timestamp - a.timestamp);
+                renderSwaps(data);
+            }, (err) => console.error(err));
+
+            // 5. Listen Schedule
+            onSnapshot(collection(db, `schedule`), (snapshot) => {
+                let scheduleData = null;
+                snapshot.forEach(doc => { if(doc.id === 'current') scheduleData = doc.data(); });
+                renderSchedule(scheduleData);
+            }, (err) => console.error(err));
+
+            bindForms();
+        }
+
+        function bindForms() {
+            // Chat Submit
+            document.getElementById('chatForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if(!firestoreUser) return;
+                const input = document.getElementById('chatInput');
+                const text = input.value.trim();
+                if(!text) return;
+                
+                const now = new Date();
+                const timeString = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+                
+                await addDoc(collection(db, `chats`), {
+                    sender: currentUser, text: text, time: timeString, timestamp: Date.now()
+                });
+                input.value = '';
+            });
+
+            // Presensi Submit
+            document.getElementById('presensiForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if(!firestoreUser) return;
+                const now = new Date();
+                const timeString = now.toLocaleDateString('id-ID') + " " + now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+                
+                await addDoc(collection(db, `presensi`), {
+                    nama: currentUser, 
+                    status: document.getElementById('presensiStatus').value,
+                    ket: document.getElementById('presensiKet').value || '-',
+                    waktu: timeString,
+                    timestamp: Date.now()
+                });
+                document.getElementById('presensiForm').reset();
+                showToast("Presensi berhasil dicatat!");
+            });
+
+            // Room Booking Submit
+            document.getElementById('roomForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if(!firestoreUser) return;
+                await addDoc(collection(db, `rooms`), {
+                    konselor: currentUser,
+                    klien: document.getElementById('roomKlien').value,
+                    tanggal: document.getElementById('roomTanggal').value,
+                    jam: document.getElementById('roomJam').value,
+                    ket: document.getElementById('roomKet').value,
+                    status: 'Pending',
+                    timestamp: Date.now()
+                });
+                document.getElementById('roomForm').reset();
+                showToast("Pengajuan ruangan terkirim ke Admin!");
+            });
+
+            // Swap Request Submit
+            document.getElementById('swapForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if(!firestoreUser) return;
+                await addDoc(collection(db, `swaps`), {
+                    pemohon: currentUser,
+                    pengganti: document.getElementById('swapPengganti').value,
+                    tglAsal: document.getElementById('swapTanggalAsal').value,
+                    alasan: document.getElementById('swapAlasan').value,
+                    status: 'Pending',
+                    timestamp: Date.now()
+                });
+                document.getElementById('swapForm').reset();
+                showToast("Pengajuan tukar jadwal terkirim!");
+            });
+        }
+
+        // --- Render Functions ---
+        
+        function renderChats(msgs) {
+            const box = document.getElementById('chatBox');
+            const isScrolledToBottom = box.scrollHeight - box.clientHeight <= box.scrollTop + 50;
+            
+            box.innerHTML = '';
+            msgs.forEach(chat => {
+                const isMe = chat.sender === currentUser;
+                const isAdminSender = chat.sender.includes('Afwan Duta Ainullah');
+                
+                let avatarColor = isMe ? 'bg-ocean-100 text-ocean-600' : (isAdminSender ? 'bg-brand-100 text-brand-600 border border-brand-300' : 'bg-slate-200 text-slate-600');
+                let initial = chat.sender.charAt(0);
+
+                box.innerHTML += `
+                    <div class="flex ${isMe ? 'justify-end' : 'justify-start'} group">
+                        ${!isMe ? `<div class="w-8 h-8 rounded-full ${avatarColor} flex-shrink-0 flex items-center justify-center text-xs font-bold mr-2 mt-1 shadow-sm">${initial}</div>` : ''}
+                        <div class="max-w-[75%]">
+                            <div class="flex items-baseline ${isMe ? 'justify-end' : 'justify-start'} mb-1 gap-2">
+                                <span class="text-[10px] text-slate-500 font-medium">${chat.sender} ${isAdminSender ? '<i class="fas fa-star text-amber-400"></i>' : ''}</span>
+                                <span class="text-[9px] text-slate-400">${chat.time}</span>
+                            </div>
+                            <div class="${isMe ? 'bg-ocean-600 text-white rounded-l-2xl rounded-br-2xl' : 'bg-white text-slate-700 border border-slate-200 rounded-r-2xl rounded-bl-2xl shadow-sm'} p-3 text-sm leading-relaxed relative">
+                                ${chat.text}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            if (isScrolledToBottom) {
+                box.scrollTop = box.scrollHeight;
+            }
+            
+            if(activeTab !== 'diskusi' && msgs.length > 0) {
+                document.getElementById('chatBadge').classList.remove('hidden');
+            }
+        }
+
+        function renderPresensi(data) {
+            const tbody = document.getElementById('presensiTableBody');
+            tbody.innerHTML = '';
+            data.forEach(req => {
+                let statusBadge = req.status.includes('Hadir') ? 'bg-green-100 text-green-700' : 
+                                 req.status === 'Izin' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-4 border-b text-xs text-slate-500">${req.waktu}</td>
+                        <td class="p-4 border-b font-medium text-slate-800">${req.nama}</td>
+                        <td class="p-4 border-b"><span class="px-3 py-1 text-xs rounded-full font-bold ${statusBadge}">${req.status}</span></td>
+                        <td class="p-4 border-b text-sm text-slate-600">${req.ket}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        window.updateFirebaseStatus = async function(collectionName, docId, newStatus) {
+            if(!isAdmin) return showToast("Hanya admin yang bisa melakukan ini", false);
+            try {
+                await updateDoc(doc(db, collectionName, docId), { status: newStatus });
+                showToast("Status berhasil diupdate!");
+            } catch (e) {
+                console.error(e);
+                showToast("Gagal update status", false);
+            }
+        }
+
+        function renderRooms(data) {
+            const tbody = document.getElementById('roomTableBody');
+            tbody.innerHTML = '';
+            data.forEach(req => {
+                let statusBadge = req.status === 'Pending' ? 'bg-amber-100 text-amber-700' : 
+                                 req.status === 'Disetujui' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+
+                let actionHtml = '';
+                if(isAdmin && req.status === 'Pending') {
+                    actionHtml = `
+                        <button onclick="updateFirebaseStatus('rooms', '${req.id}', 'Disetujui')" class="text-white bg-green-500 hover:bg-green-600 p-2 rounded-lg text-xs mr-1 shadow-sm transition-transform hover:scale-110"><i class="fas fa-check"></i></button>
+                        <button onclick="updateFirebaseStatus('rooms', '${req.id}', 'Ditolak')" class="text-white bg-red-500 hover:bg-red-600 p-2 rounded-lg text-xs shadow-sm transition-transform hover:scale-110"><i class="fas fa-times"></i></button>
+                    `;
+                } else if (isAdmin) {
+                    actionHtml = '<span class="text-xs text-slate-400">Selesai</span>';
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-4 border-b text-sm text-slate-700"><i class="far fa-calendar-alt mr-1 text-slate-400"></i> ${req.tanggal} <br><span class="font-bold text-ocean-600"><i class="far fa-clock mr-1"></i>${req.jam}</span></td>
+                        <td class="p-4 border-b font-medium text-slate-800">${req.konselor}</td>
+                        <td class="p-4 border-b text-sm text-slate-600">${req.klien} <br><span class="text-xs text-slate-400">(${req.ket})</span></td>
+                        <td class="p-4 border-b"><span class="px-3 py-1 text-xs rounded-full font-bold ${statusBadge}">${req.status}</span></td>
+                        <td class="p-4 border-b admin-only-col ${isAdmin ? '' : 'hidden'}">${actionHtml}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderSwaps(data) {
+            const tbody = document.getElementById('swapTableBody');
+            tbody.innerHTML = '';
+            data.forEach(req => {
+                let statusBadge = req.status === 'Pending' ? 'bg-amber-100 text-amber-700' : 
+                                 req.status === 'Disetujui' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+
+                let actionHtml = '';
+                if(isAdmin && req.status === 'Pending') {
+                    actionHtml = `
+                        <button onclick="updateFirebaseStatus('swaps', '${req.id}', 'Disetujui')" class="text-white bg-green-500 hover:bg-green-600 px-3 py-1 rounded-lg text-xs mr-1 shadow-sm font-semibold">Setuju</button>
+                        <button onclick="updateFirebaseStatus('swaps', '${req.id}', 'Ditolak')" class="text-white bg-red-500 hover:bg-red-600 px-3 py-1 rounded-lg text-xs shadow-sm font-semibold">Tolak</button>
+                    `;
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-4 border-b font-semibold text-ocean-600">${req.pemohon}</td>
+                        <td class="p-4 border-b font-semibold text-purple-600">${req.pengganti}</td>
+                        <td class="p-4 border-b text-sm text-slate-600"><i class="far fa-calendar text-slate-400 mr-1"></i> ${req.tglAsal}<br><span class="text-xs italic text-slate-400">"${req.alasan}"</span></td>
+                        <td class="p-4 border-b"><span class="px-3 py-1 text-xs rounded-full font-bold ${statusBadge}">${req.status}</span></td>
+                        <td class="p-4 border-b admin-only-col ${isAdmin ? '' : 'hidden'}">${actionHtml}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        window.generateSchedule = async function() {
+            if(!isAdmin) return;
+            
+            const shuffle = (array) => {
+                let cur = array.length, rnd;
+                while (cur != 0) { rnd = Math.floor(Math.random() * cur); cur--; [array[cur], array[rnd]] = [array[rnd], array[cur]]; }
+                return array;
+            };
+
+            let generatedDays = [];
+            days.forEach(day => {
+                let dailyStudents = shuffle([...students]);
+                let dayData = { day: day, posData: [], standbyData: [] };
+                
+                for(let i=0; i<5; i++) {
+                    dayData.posData.push({ pos: posts[i], name: dailyStudents[i].name });
+                }
+                dayData.standbyData.push(dailyStudents[5].name, dailyStudents[6].name);
+                generatedDays.push(dayData);
+            });
+
+            try {
+                await setDoc(doc(db, `schedule`, 'current'), { days: generatedDays });
+                showToast("Jadwal baru berhasil dibuat & disinkronisasi!");
+            } catch (e) {
+                console.error(e);
+                showToast("Gagal menyimpan jadwal ke cloud", false);
+            }
+        };
+
+        function renderSchedule(scheduleData) {
+            const container = document.getElementById('scheduleContainer');
+            if(!scheduleData || !scheduleData.days) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center text-slate-400 py-12 bg-white rounded-2xl border border-dashed border-slate-300">
+                        <i class="fas fa-calendar-times text-4xl mb-3 text-slate-300"></i>
+                        <p>Jadwal belum tersedia. Menunggu Admin membuat jadwal.</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            scheduleData.days.forEach(d => {
+                let cardHTML = `
+                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 overflow-hidden transform hover:-translate-y-1 transition-transform">
+                    <div class="bg-gradient-to-r from-ocean-600 to-brand-500 text-white text-center py-4 font-bold text-lg tracking-wide uppercase shadow-inner">${d.day}</div>
+                    <div class="p-6 space-y-4">
+                `;
+
+                d.posData.forEach(p => {
+                    cardHTML += `
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                            <span class="text-xs font-bold text-brand-600 bg-brand-50 px-2 py-1 rounded uppercase tracking-wider">${p.pos}</span>
+                            <span class="text-sm font-medium text-slate-700 text-right ml-2">${p.name}</span>
+                        </div>
+                    `;
+                });
+                
+                cardHTML += `
+                        <div class="mt-6 pt-3 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100">
+                            <span class="text-xs font-black text-amber-700 block mb-2 uppercase tracking-wide flex items-center gap-1"><i class="fas fa-shield-alt"></i> Cadangan (Ruang BK)</span>
+                            <span class="text-sm font-medium text-slate-700 block mb-1 flex items-center"><i class="fas fa-user-circle text-amber-400 mr-2"></i> ${d.standbyData[0]}</span>
+                            <span class="text-sm font-medium text-slate-700 block flex items-center"><i class="fas fa-user-circle text-amber-400 mr-2"></i> ${d.standbyData[1]}</span>
+                        </div>
+                    </div></div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+
+        window.switchTab = function(tabId) {
+            activeTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('bg-white/10', 'border-l-4', 'border-brand-400');
+                el.classList.add('border-l-4', 'border-transparent');
+            });
+            event.currentTarget.classList.add('bg-white/10', 'border-l-4', 'border-brand-400', 'border-transparent');
+            
+            const titles = { dashboard: "Dashboard Admin", jadwal: "Jadwal & Tukar Piket", presensi: "Presensi Harian", ruangan: "Peminjaman Ruangan", diskusi: "Ruang Diskusi (Realtime)", 'ai-assistant': "Gemini AI BK" };
+            document.getElementById('pageTitle').innerText = titles[tabId];
+
+            if(tabId === 'diskusi') {
+                document.getElementById('chatBadge').classList.add('hidden');
+                const box = document.getElementById('chatBox');
+                box.scrollTop = box.scrollHeight;
+            }
+        }
+
+        // AI Assistant Integration
+        // Biarkan kosong jika upload ke GitHub, atau isi dengan API key milikmu jika punya.
+        const geminiApiKey = ""; 
+        const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${geminiApiKey}`;
+
+        async function callGeminiAPI(prompt, systemInstruction) {
+            if(!geminiApiKey) {
+                return "Maaf, fitur AI dinonaktifkan pada versi GitHub ini karena alasan keamanan (API Key tidak boleh dipublish).";
+            }
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
+            try {
+                const response = await fetch(geminiApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0) return result.candidates[0].content.parts[0].text;
+                throw new Error("Respons gagal.");
+            } catch (error) {
+                return `Maaf, AI sedang sibuk atau offline. Coba lagi.`;
+            }
+        }
+
+        function formatMarkdown(text) {
+            return text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-purple-700">$1</strong>')
+                       .replace(/\*(.*?)\*/g, '<em class="text-slate-600">$1</em>')
+                       .replace(/\n/g, '<br>');
+        }
+
+        window.generateAIReport = async function() {
+            const inputVal = document.getElementById('aiReportInput').value;
+            if (!inputVal.trim()) return showToast("Isi poin kegiatan dulu!", false);
+
+            document.getElementById('btnGenerateReport').disabled = true;
+            document.getElementById('aiReportLoading').classList.remove('hidden');
+            document.getElementById('aiReportOutputContainer').classList.add('hidden');
+
+            const sys = "Kamu adalah asisten profesional Mahasiswa PPL Bimbingan dan Konseling. Ubah catatan singkat ini menjadi Laporan Jurnal Kegiatan PPL Harian dengan bahasa baku, formal, dan rapi.";
+            const res = await callGeminiAPI(inputVal, sys);
+            
+            document.getElementById('aiReportOutput').innerHTML = formatMarkdown(res);
+            document.getElementById('aiReportLoading').classList.add('hidden');
+            document.getElementById('aiReportOutputContainer').classList.remove('hidden');
+            document.getElementById('btnGenerateReport').disabled = false;
+        }
+
+        window.analyzeAICase = async function() {
+            const inputVal = document.getElementById('aiCaseInput').value;
+            if (!inputVal.trim()) return showToast("Deskripsikan kasus dulu!", false);
+
+            document.getElementById('btnAnalyzeCase').disabled = true;
+            document.getElementById('aiCaseLoading').classList.remove('hidden');
+            document.getElementById('aiCaseOutputContainer').classList.add('hidden');
+
+            const sys = "Kamu Dosen Pembimbing Lapangan BK. Analisis akar masalah, rekomendasikan pendekatan teori konseling (CBT, dll), dan beri 3 langkah taktis awal untuk konselor muda menghadapi siswa ini.";
+            const res = await callGeminiAPI(inputVal, sys);
+            
+            document.getElementById('aiCaseOutput').innerHTML = formatMarkdown(res);
+            document.getElementById('aiCaseLoading').classList.add('hidden');
+            document.getElementById('aiCaseOutputContainer').classList.remove('hidden');
+            document.getElementById('btnAnalyzeCase').disabled = false;
+        }
+
+        window.copyToClipboard = function(elementId) {
+            const textToCopy = document.getElementById(elementId).innerText;
+            const temp = document.createElement("textarea");
+            temp.value = textToCopy;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand("copy");
+            document.body.removeChild(temp);
+            showToast("Teks disalin ke clipboard!");
+        }
+
+        // On Load
+        window.onload = () => {
+            checkIdentity();
+            document.querySelectorAll('textarea').forEach(el => {
+                el.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = (this.scrollHeight) + 'px';
+                });
+            });
+        };
+    </script>
+</body>
+</html>
