@@ -3,468 +3,656 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Interaktif PPL BK SMAN 12 Bandung</title>
+    <title>Portal Administrasi PPL BK SMAN 12 Bandung</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Poppins', 'sans-serif'] },
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
                     colors: {
-                        brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 800: '#115e59', 900: '#134e4a' },
-                        ocean: { 500: '#3b82f6', 600: '#2563eb', 800: '#1e40af', 900: '#1e3a8a' }
+                        navy: { 50: '#f0f4f8', 100: '#d9e2ec', 500: '#334e68', 700: '#243b53', 800: '#102a43', 900: '#0b1c2c' },
+                        bk: { 50: '#f0fdfa', 100: '#ccfbf1', 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e', 800: '#115e59' }
                     }
                 }
             }
         }
     </script>
     <style>
-        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
         
+        /* Tab Transitions */
+        .tab-content { display: none; opacity: 0; }
+        .tab-content.active { display: block; animation: fadeSlideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Micro-interactions & Elevate Hover */
+        .hover-card { transition: all 0.3s ease; }
+        .hover-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -5px rgba(16, 42, 67, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03); }
+        .btn-press { transition: all 0.15s ease; }
+        .btn-press:active { transform: scale(0.96); }
+        
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-        }
+        /* Print Container (Formal KOP Surat PDF Generation) */
+        #print-container { position: absolute; left: -9999px; top: 0; width: 210mm; min-height: 297mm; background: white; z-index: -100; padding: 15mm 20mm; box-sizing: border-box; }
+        
+        /* Dropdown Animation */
+        .dropdown-menu { transform-origin: top right; transition: all 0.2s ease; opacity: 0; transform: scale(0.95); pointer-events: none; }
+        .dropdown-menu.show { opacity: 1; transform: scale(1); pointer-events: auto; }
     </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 antialiased overflow-x-hidden pb-16 md:pb-0">
+<body class="text-slate-800 antialiased overflow-hidden pb-16 md:pb-0 h-screen flex">
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed top-5 right-5 z-50 transform transition-all duration-300 translate-x-full opacity-0 max-w-sm w-full pointer-events-none">
-        <div class="bg-white px-5 py-3.5 rounded-2xl shadow-xl border-l-4 border-brand-500 flex items-center gap-3 pointer-events-auto">
-            <i class="fas fa-check-circle text-brand-500 text-xl" id="toastIcon"></i>
-            <p id="toastMessage" class="font-medium text-slate-700 text-sm">Pesan sukses</p>
+    <!-- Formal Printable PDF Template -->
+    <div id="print-container" class="text-black bg-white">
+        <!-- KOP Surat Resmi -->
+        <div class="flex items-center justify-between border-b-[3px] border-black pb-3 mb-1">
+            <div class="w-16 flex items-center justify-center">
+                <div class="w-14 h-14 bg-slate-200 rounded-full flex items-center justify-center font-bold text-[10px] text-center border border-black">
+                    JABAR
+                </div>
+            </div>
+            <div class="text-center flex-1 px-4">
+                <h3 class="text-sm font-bold uppercase leading-tight tracking-tight">Pemerintah Daerah Provinsi Jawa Barat</h3>
+                <h3 class="text-sm font-bold uppercase leading-tight tracking-tight">Dinas Pendidikan</h3>
+                <h4 class="text-xs font-bold uppercase leading-tight tracking-tight">Cabang Dinas Pendidikan Wilayah VII</h4>
+                <h1 class="text-lg font-black uppercase tracking-wide leading-tight mt-1">SMA Negeri 12 Kota Bandung</h1>
+                <p class="text-[10px] mt-0.5">Jl. Sekejati No.36, Sukapura, Kec. Kiaracondong, Kota Bandung, Jawa Barat 40285</p>
+                <p class="text-[10px]">Website: sman12bandung.sch.id | Email: info@sman12bandung.sch.id</p>
+            </div>
+            <div class="w-16 flex items-center justify-center">
+                <div class="w-14 h-14 bg-slate-200 rounded-full flex items-center justify-center font-bold text-[9px] text-center border border-black">
+                    SMA 12
+                </div>
+            </div>
+        </div>
+        <div class="border-b border-black w-full mb-5"></div>
+
+        <!-- Judul Dokumen -->
+        <div class="text-center mb-6">
+            <h2 id="pdf-title" class="text-base font-bold uppercase underline tracking-wide">LAPORAN DOKUMEN RESMI PPL BK</h2>
+            <p id="pdf-number" class="text-xs mt-1">Nomor: 421.3/ <span id="pdf-num-val">104</span> -SMAN12/2026</p>
+        </div>
+
+        <!-- Konten Utama PDF -->
+        <div id="pdf-content" class="mb-8 text-xs leading-relaxed">
+            <!-- Tabel & data akan diinjeksi secara dinamis lewat JS -->
+        </div>
+
+        <!-- Tanda Tangan Block Resmi -->
+        <div class="mt-12 w-full text-xs break-inside-avoid">
+            <div class="flex justify-between mb-16">
+                <div class="text-center w-5/12">
+                    <p>Mengetahui,</p>
+                    <p class="font-bold">Koordinator Guru Pamong</p>
+                    <p>PPL BK SMA Negeri 12 Bandung</p>
+                    <div class="h-16"></div>
+                    <p class="font-bold underline">Fitrya Agus Setiawaty, S.Psi.</p>
+                    <p>NIP. 198008172022212026</p>
+                </div>
+                <div class="text-center w-5/12">
+                    <p>&nbsp;</p>
+                    <p class="font-bold">Dosen Pendamping Lapangan</p>
+                    <p>PPG Prajabatan BK</p>
+					<p>SMA Negeri 12 Kota Bandung</p>
+                    <div class="h-16"></div>
+                    <p class="font-bold underline">Drs. Sudaryat Nurdin Akhmad, M.Pd.</p>
+                    <p>NIP. 19630630 199512 1 001</p>
+                </div>
+            </div>
+            <div class="flex justify-center">
+                <div class="text-center w-5/12">
+                    <p>Bandung, <span id="pdf-date">23 September 2026</span></p>
+                    <p class="font-bold">Ketua PPL BK</p>
+                    <div class="h-16"></div>
+                    <p class="font-bold underline">Afwan Duta Ainullah, S.Pd.</p>
+                    <p>NIM. 2530723</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Login NIM Identity Modal -->
-    <div id="identityModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4 transition-opacity duration-300">
-        <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-2xl max-w-md w-full transform scale-100 transition-transform duration-300" id="identityCard">
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform transition-all duration-300 translate-x-[120%] opacity-0 max-w-sm w-full pointer-events-none shadow-2xl rounded-xl">
+        <div class="bg-white px-4 py-3 rounded-xl border-l-4 border-bk-600 flex items-start gap-3 pointer-events-auto shadow-lg">
+            <i class="fas fa-info-circle text-bk-600 text-xl mt-0.5" id="toastIcon"></i>
+            <div>
+                <h4 class="font-bold text-sm text-navy-900" id="toastTitle">Informasi</h4>
+                <p id="toastMessage" class="text-slate-600 text-xs mt-0.5">Pesan sistem terverifikasi</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Auth Modal -->
+    <div id="identityModal" class="fixed inset-0 bg-navy-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full transform transition-all duration-300 border border-slate-100" id="identityCard">
             <div class="text-center mb-6">
-                <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-tr from-brand-500 to-ocean-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand-500/20">
-                    <i class="fas fa-user-graduate text-2xl sm:text-3xl text-white"></i>
+                <div class="w-16 h-16 bg-navy-50 text-navy-800 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
+                    <i class="fas fa-shield-halved text-2xl"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Portal PPL BK SMAN 12</h2>
-                <p class="text-slate-500 text-xs sm:text-sm mt-1">Masukkan Nomor Induk Mahasiswa (NIM) kamu untuk autentikasi masuk.</p>
+                <h2 class="text-xl font-bold text-navy-900">Portal PPL BK SMAN 12 Bandung</h2>
+                <p class="text-slate-500 text-xs mt-1">Sistem Informasi Administrasi & Manajemen Piket</p>
             </div>
             
             <form onsubmit="event.preventDefault(); setIdentity();" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">NIM Mahasiswa</label>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">NIM Mahasiswa PPG</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                            <i class="fas fa-id-card"></i>
+                            <i class="fas fa-id-badge text-sm"></i>
                         </span>
-                        <input type="text" id="nimInput" class="w-full border-2 border-slate-200 pl-10 pr-4 py-3.5 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition-all font-semibold text-slate-800 placeholder-slate-400 text-sm" placeholder="Contoh: coba dipikir NIM kamu berapa" required>
+                        <input type="text" id="nimInput" class="w-full bg-slate-50 border border-slate-200 pl-10 pr-4 py-2.5 rounded-xl focus:outline-none focus:border-bk-500 focus:ring-2 focus:ring-bk-100 transition-all font-semibold text-slate-800 text-sm" placeholder="Masukkan NIM (Cth: 2530723)..." required>
                     </div>
                 </div>
-
-                <button type="submit" class="w-full bg-gradient-to-r from-ocean-600 to-brand-500 hover:from-ocean-700 hover:to-brand-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-ocean-500/25 hover:shadow-xl transition-all transform hover:-translate-y-0.5 text-sm flex items-center justify-center gap-2">
-                    <span>Masuk ke Portal</span>
-                    <i class="fas fa-arrow-right text-xs"></i>
+                <button type="submit" class="w-full bg-navy-800 hover:bg-navy-900 text-white font-bold py-3 rounded-xl shadow-md hover:shadow-lg transition-all btn-press text-xs flex items-center justify-center gap-2">
+                    <i class="fas fa-right-to-bracket"></i> Masuk Sistem Administrasi
                 </button>
             </form>
-
-            <div class="mt-6 pt-4 border-t border-slate-100 text-center">
-                <p class="text-[11px] text-slate-400">PPL PPG Bimbingan dan Konseling SMAN 12 Bandung</p>
+            <div class="mt-6 text-center border-t border-slate-100 pt-4">
+                <p class="text-[10px] text-slate-400 font-semibold">Tahun Ajaran 2026/2027 • Kab. Bandung & Kota Bandung</p>
             </div>
         </div>
     </div>
 
-    <!-- Main Layout Container -->
-    <div class="flex h-screen w-full relative overflow-hidden">
-        
-        <!-- Desktop Sidebar -->
-        <aside class="w-72 bg-gradient-to-b from-ocean-900 via-ocean-800 to-brand-900 text-white flex-col shadow-2xl z-20 hidden md:flex">
-            <div class="p-6 text-center border-b border-white/10 relative overflow-hidden">
-                <div class="w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-3 border border-white/20 shadow-inner">
-                    <i class="fas fa-school text-xl text-brand-200"></i>
+    <!-- Desktop Sidebar -->
+    <aside class="w-72 bg-navy-900 text-white flex flex-col shadow-2xl z-20 hidden md:flex h-full border-r border-navy-800">
+        <div class="p-6 border-b border-white/10">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 bg-bk-600 rounded-xl flex items-center justify-center shadow-md">
+                    <i class="fas fa-graduation-cap text-lg text-white"></i>
                 </div>
-                <h1 class="text-lg font-bold tracking-wide">PPL BK SMAN 12</h1>
-                <p class="text-[11px] text-brand-200 mt-1 bg-white/10 py-0.5 px-2.5 rounded-full inline-block font-medium">Ketua: Afwan Duta A.</p>
+                <div>
+                    <h1 class="text-sm font-extrabold tracking-wide text-white leading-tight">PPL BK SMAN 12</h1>
+                    <p class="text-[10px] text-bk-400 font-medium">Kota Bandung</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="px-4 py-5 overflow-y-auto flex-1">
+            <p class="px-3 text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-3">Menu Utama</p>
+            <nav class="space-y-1.5">
+                <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center px-3 py-2.5 rounded-xl hover:bg-white/10 text-left transition-all group active-nav bg-white/10">
+                    <i class="fas fa-chart-pie w-6 text-center text-bk-400 group-hover:text-white transition-colors"></i>
+                    <span class="font-semibold text-xs ml-2">Dashboard</span>
+                </button>
+                <button onclick="switchTab('jadwal')" class="nav-btn w-full flex items-center px-3 py-2.5 rounded-xl hover:bg-white/10 text-left transition-all group">
+                    <i class="fas fa-calendar-alt w-6 text-center text-slate-400 group-hover:text-white transition-colors"></i>
+                    <span class="font-semibold text-xs ml-2">Jadwal & Tukar Piket</span>
+                </button>
+                <button onclick="switchTab('backup')" class="nav-btn w-full flex items-center px-3 py-2.5 rounded-xl hover:bg-white/10 text-left transition-all group relative">
+                    <i class="fas fa-user-shield w-6 text-center text-slate-400 group-hover:text-white transition-colors"></i>
+                    <span class="font-semibold text-xs ml-2">Manajemen Backup</span>
+                    <span class="ml-auto bg-bk-500 text-navy-900 text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider">Auto</span>
+                </button>
+                <button onclick="switchTab('presensi')" class="nav-btn w-full flex items-center px-3 py-2.5 rounded-xl hover:bg-white/10 text-left transition-all group">
+                    <i class="fas fa-clipboard-user w-6 text-center text-slate-400 group-hover:text-white transition-colors"></i>
+                    <span class="font-semibold text-xs ml-2">Rekap Kehadiran</span>
+                </button>
+                <button onclick="switchTab('ruangan')" class="nav-btn w-full flex items-center px-3 py-2.5 rounded-xl hover:bg-white/10 text-left transition-all group">
+                    <i class="fas fa-door-open w-6 text-center text-slate-400 group-hover:text-white transition-colors"></i>
+                    <span class="font-semibold text-xs ml-2">Peminjaman Ruang</span>
+                </button>
+                <button onclick="switchTab('diskusi')" class="nav-btn w-full flex items-center px-3 py-2.5 rounded-xl hover:bg-white/10 text-left transition-all group">
+                    <i class="fas fa-comments w-6 text-center text-slate-400 group-hover:text-white transition-colors"></i>
+                    <span class="font-semibold text-xs ml-2">Forum Diskusi</span>
+                </button>
+            </nav>
+        </div>
+        
+        <div class="p-4 border-t border-white/10 bg-navy-900/50">
+            <div class="bg-navy-800 p-3.5 rounded-xl border border-white/5 shadow-inner">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-bk-600 flex items-center justify-center text-xs font-bold text-white shadow-sm" id="sidebarAvatar">A</div>
+                    <div class="overflow-hidden">
+                        <p class="text-xs font-bold truncate text-white" id="sidebarName">Admin</p>
+                        <p class="text-[9px] text-bk-400 font-medium truncate" id="sidebarRole">Ketua PPL</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="w-full py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-300 rounded-lg text-[11px] font-bold transition-colors mt-2.5 btn-press">
+                    Keluar Sesi
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Section -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden">
+        
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-slate-200 px-6 py-3.5 flex justify-between items-center z-10 sticky top-0">
+            <div>
+                <h2 class="text-lg font-bold text-navy-900" id="pageTitle">Dashboard Utama</h2>
+                <p class="text-[11px] text-slate-500 font-medium hidden sm:block">Sistem Administrasi PPL BK SMAN 12 Bandung • TA 2026/2027</p>
             </div>
             
-            <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
-                <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center p-3.5 rounded-xl hover:bg-white/10 text-left transition-all group active-nav">
-                    <div class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center mr-3 group-hover:bg-brand-500 transition-all"><i class="fas fa-home text-xs"></i></div>
-                    <span class="font-medium text-sm">Dashboard</span>
-                </button>
-                <button onclick="switchTab('jadwal')" class="nav-btn w-full flex items-center p-3.5 rounded-xl hover:bg-white/10 text-left transition-all group">
-                    <div class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center mr-3 group-hover:bg-brand-500 transition-all"><i class="fas fa-calendar-alt text-xs"></i></div>
-                    <span class="font-medium text-sm">Jadwal & Tukar Piket</span>
-                </button>
-                <button onclick="switchTab('presensi')" class="nav-btn w-full flex items-center p-3.5 rounded-xl hover:bg-white/10 text-left transition-all group">
-                    <div class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center mr-3 group-hover:bg-brand-500 transition-all"><i class="fas fa-clipboard-check text-xs"></i></div>
-                    <span class="font-medium text-sm">Presensi & Izin</span>
-                </button>
-                <button onclick="switchTab('ruangan')" class="nav-btn w-full flex items-center p-3.5 rounded-xl hover:bg-white/10 text-left transition-all group">
-                    <div class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center mr-3 group-hover:bg-brand-500 transition-all"><i class="fas fa-door-open text-xs"></i></div>
-                    <span class="font-medium text-sm">Pinjam Ruang BK</span>
-                </button>
-                <button onclick="switchTab('diskusi')" class="nav-btn w-full flex items-center p-3.5 rounded-xl hover:bg-white/10 text-left transition-all group">
-                    <div class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center mr-3 group-hover:bg-brand-500 transition-all"><i class="fas fa-comments text-xs"></i></div>
-                    <span class="font-medium text-sm">Ruang Diskusi <span id="chatBadge" class="ml-1 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">New</span></span>
-                </button>
-                
-                <div class="pt-4 mt-4 border-t border-white/10">
-                    <button onclick="switchTab('ai-assistant')" class="w-full flex items-center p-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-left transition-all shadow-md group">
-                        <div class="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center mr-3 animate-pulse"><i class="fas fa-robot text-xs"></i></div>
-                        <span class="font-semibold text-sm tracking-wide">AI Asisten BK</span>
+            <div class="flex items-center gap-3">
+                <!-- Internal Notifications Dropdown -->
+                <div class="relative">
+                    <button onclick="toggleNotif()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors relative btn-press">
+                        <i class="fas fa-bell text-sm"></i>
+                        <span id="notifBadge" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse border-2 border-white"></span>
                     </button>
+                    <div id="notifDropdown" class="dropdown-menu absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-slate-100 overflow-hidden z-50">
+                        <div class="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                            <h3 class="font-bold text-xs text-navy-900 uppercase tracking-wider">Notifikasi Sistem</h3>
+                            <button onclick="clearNotifBadge()" class="text-[10px] text-bk-700 font-bold hover:underline">Tandai Dibaca</button>
+                        </div>
+                        <div class="max-h-64 overflow-y-auto divide-y divide-slate-50" id="notifList">
+                            <div class="p-4 text-center text-xs text-slate-400">Belum ada notifikasi baru</div>
+                        </div>
+                    </div>
                 </div>
-            </nav>
-        </aside>
 
-        <!-- Main Workspace -->
-        <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
+                <!-- Export Document Menu -->
+                <button onclick="generatePDF('Presensi')" class="hidden sm:flex bg-navy-800 hover:bg-navy-900 text-white px-3 py-2 rounded-xl text-xs font-bold items-center gap-2 btn-press transition-colors shadow-sm">
+                    <i class="fas fa-file-pdf text-red-400"></i> Cetak Laporan PDF
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Scrollable Body -->
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/60 relative">
             
-            <!-- Top Header -->
-            <header class="bg-white/90 backdrop-blur-md shadow-sm border-b border-slate-200 px-4 py-3.5 sm:px-8 flex justify-between items-center z-10">
-                <div>
-                    <h2 class="text-lg sm:text-xl font-bold text-slate-800 tracking-tight" id="pageTitle">Dashboard</h2>
-                    <p class="text-[11px] text-slate-400 hidden sm:block">SMAN 12 Bandung • Tahun Ajaran 2026/2027</p>
+            <!-- Global Loading Overlay -->
+            <div id="globalLoading" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-40 flex items-center justify-center hidden">
+                <div class="bg-navy-900 px-6 py-4 rounded-xl shadow-2xl flex flex-col items-center gap-3">
+                    <i class="fas fa-circle-notch fa-spin text-2xl text-bk-400"></i>
+                    <span class="font-bold text-white text-xs tracking-wide">Sinkronisasi Database...</span>
                 </div>
-                <div class="flex items-center gap-3">
-                    <div class="text-right">
-                        <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Pengguna</p>
-                        <p class="text-xs sm:text-sm font-bold text-ocean-600 truncate max-w-[120px] sm:max-w-none" id="headerUserName">Memuat...</p>
-                    </div>
-                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-brand-100 to-ocean-100 border border-brand-300 flex items-center justify-center shadow-sm text-brand-700 font-bold text-sm">
-                        <i class="fas fa-user-circle text-lg"></i>
-                    </div>
-                    <button onclick="logout()" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition" title="Keluar / Ganti Akun">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
-                </div>
-            </header>
+            </div>
 
-            <!-- Scrollable Viewport -->
-            <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 relative">
-                
-                <!-- Server Sync Indicator -->
-                <div id="globalLoading" class="absolute inset-0 bg-slate-50/80 backdrop-blur-sm z-40 flex items-center justify-center">
-                    <div class="bg-white p-5 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3">
-                        <i class="fas fa-circle-notch fa-spin text-2xl text-brand-500"></i>
-                        <span class="font-medium text-slate-700 text-sm">Menghubungkan ke Server Cloud...</span>
+            <!-- TAB 1: DASHBOARD -->
+            <div id="dashboard" class="tab-content active space-y-5">
+                <!-- Top Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 hover-card">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600"><i class="fas fa-users text-sm"></i></div>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Total Tim PPL</span>
+                        </div>
+                        <h3 class="text-xl font-black text-navy-900">7 <span class="text-xs font-medium text-slate-500">Mahasiswa</span></h3>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 hover-card">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600"><i class="fas fa-clock-rotate-left text-sm"></i></div>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Pending Persetujuan</span>
+                        </div>
+                        <h3 class="text-xl font-black text-navy-900" id="dashPendingCount">0 <span class="text-xs font-medium text-slate-500">Berkas</span></h3>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 hover-card">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600"><i class="fas fa-door-open text-sm"></i></div>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Sesi Ruang Konseling</span>
+                        </div>
+                        <h3 class="text-xl font-black text-navy-900" id="dashRoomCount">0 <span class="text-xs font-medium text-slate-500">Jadwal</span></h3>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 hover-card bg-gradient-to-br from-navy-800 to-navy-900">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-bk-400"><i class="fas fa-calendar-check text-sm"></i></div>
+                            <span class="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Hari Piket Utama</span>
+                        </div>
+                        <h3 class="text-sm font-bold text-white leading-tight mt-1">Senin, Selasa, Jumat</h3>
+                        <p class="text-[10px] text-slate-400 mt-0.5">3 Hari Sekolah / Minggu</p>
                     </div>
                 </div>
 
-                <!-- TAB 1: DASHBOARD -->
-                <div id="dashboard" class="tab-content active space-y-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                        <div class="glass-card rounded-2xl p-5 relative overflow-hidden">
-                            <h3 class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Anggota Tim PPL</h3>
-                            <div class="flex items-baseline gap-2">
-                                <span class="text-3xl font-black text-slate-800">7</span>
-                                <span class="text-xs text-ocean-600 font-medium">Mahasiswa BK</span>
+                <!-- Quick Actions Panel -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                    <h3 class="text-xs font-bold text-navy-900 mb-3 border-l-4 border-bk-500 pl-2.5 uppercase tracking-wider">Aksi Cepat (Quick Actions)</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <button onclick="switchTab('presensi')" class="flex flex-col items-center justify-center p-3.5 rounded-xl bg-slate-50 hover:bg-bk-50 border border-slate-100 hover:border-bk-200 transition-all btn-press group">
+                            <i class="fas fa-fingerprint text-lg text-slate-400 group-hover:text-bk-600 mb-1.5"></i>
+                            <span class="text-xs font-bold text-slate-700">Isi Kehadiran</span>
+                        </button>
+                        <button onclick="switchTab('jadwal')" class="flex flex-col items-center justify-center p-3.5 rounded-xl bg-slate-50 hover:bg-bk-50 border border-slate-100 hover:border-bk-200 transition-all btn-press group">
+                            <i class="fas fa-arrow-right-arrow-left text-lg text-slate-400 group-hover:text-bk-600 mb-1.5"></i>
+                            <span class="text-xs font-bold text-slate-700">Tukar Piket</span>
+                        </button>
+                        <button onclick="switchTab('ruangan')" class="flex flex-col items-center justify-center p-3.5 rounded-xl bg-slate-50 hover:bg-bk-50 border border-slate-100 hover:border-bk-200 transition-all btn-press group">
+                            <i class="fas fa-key text-lg text-slate-400 group-hover:text-bk-600 mb-1.5"></i>
+                            <span class="text-xs font-bold text-slate-700">Pinjam Ruang BK</span>
+                        </button>
+                        <button onclick="generatePDF('Jadwal')" class="flex flex-col items-center justify-center p-3.5 rounded-xl bg-slate-50 hover:bg-bk-50 border border-slate-100 hover:border-bk-200 transition-all btn-press group">
+                            <i class="fas fa-file-pdf text-lg text-red-400 group-hover:text-red-600 mb-1.5"></i>
+                            <span class="text-xs font-bold text-slate-700">Cetak Laporan</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dashboard Layout: Timeline & Student Roster -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                    <!-- Timeline Log -->
+                    <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xs font-bold text-navy-900 border-l-4 border-bk-500 pl-2.5 uppercase tracking-wider">Timeline Aktivitas Terbaru</h3>
+                            <span class="text-[10px] text-slate-400 font-semibold">Update Otomatis</span>
+                        </div>
+                        <div class="relative border-l-2 border-slate-100 ml-3 space-y-4" id="dashboardTimeline">
+                            <p class="text-xs text-slate-400 ml-4">Memuat data aktivitas...</p>
+                        </div>
+                    </div>
+
+                    <!-- Anggota PPL Roster -->
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+                        <h3 class="text-xs font-bold text-navy-900 mb-4 border-l-4 border-bk-500 pl-2.5 uppercase tracking-wider">Daftar Mahasiswa PPL BK</h3>
+                        <div class="space-y-3" id="dashboardStudentList">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: JADWAL & TUKAR PIKET -->
+            <div id="jadwal" class="tab-content space-y-5">
+                <!-- Header Generator -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 hover-card">
+                    <div>
+                        <h3 class="text-base font-bold text-navy-900">Modul Penjadwalan Piket</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Penugasan otomatis 5 Pos Utama & 2 Piket Cadangan Ruang BK.</p>
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+                        <button onclick="generatePDF('Jadwal')" class="bg-navy-800 hover:bg-navy-900 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 btn-press transition-colors shadow-sm">
+                            <i class="fas fa-file-pdf text-red-400"></i> Cetak SK Jadwal
+                        </button>
+                        <!-- Admin Generator Controls -->
+                        <div id="btnGenerateJadwal" class="hidden flex-wrap items-center gap-2 bg-slate-50 p-1 rounded-xl border border-slate-200">
+                            <div class="flex items-center gap-1.5 px-2">
+                                <label class="text-[10px] text-slate-500 font-bold uppercase">Mulai (Senin):</label>
+                                <input type="date" id="startDatePicker" class="text-xs font-bold text-slate-800 bg-transparent outline-none">
                             </div>
-                        </div>
-                        <div class="glass-card rounded-2xl p-5 relative overflow-hidden">
-                            <h3 class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Persetujuan Pending</h3>
-                            <div class="flex items-baseline gap-2">
-                                <span class="text-3xl font-black text-amber-500" id="pendingCount">0</span>
-                                <span class="text-xs text-slate-400 font-medium">Permintaan</span>
-                            </div>
-                        </div>
-                        <div class="glass-card rounded-2xl p-5 relative overflow-hidden">
-                            <h3 class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Hari Aktif PPL</h3>
-                            <p class="text-base font-bold text-slate-800 mt-1">Senin, Selasa, Jumat</p>
-                            <p class="text-[11px] text-brand-600 mt-1 flex items-center gap-1"><i class="fas fa-clock"></i> 06.30 - Selesai</p>
-                        </div>
-                    </div>
-
-                    <div class="glass-card rounded-2xl p-5 sm:p-6">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-8 h-8 rounded-lg bg-ocean-100 flex items-center justify-center text-ocean-600"><i class="fas fa-users text-sm"></i></div>
-                            <h3 class="text-base font-bold text-slate-800">Daftar Mahasiswa PPL BK</h3>
-                        </div>
-                        <div class="overflow-x-auto rounded-xl border border-slate-200">
-                            <table class="w-full text-left border-collapse text-xs sm:text-sm">
-                                <thead>
-                                    <tr class="bg-slate-50 text-slate-500 border-b">
-                                        <th class="p-3 font-semibold">Nama Lengkap</th>
-                                        <th class="p-3 font-semibold">NIM</th>
-                                        <th class="p-3 font-semibold">Peran</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="studentList" class="divide-y divide-slate-100 bg-white">
-                                    <!-- Rendered dynamically -->
-                                </tbody>
-                            </table>
+                            <button onclick="generateSchedule()" class="bg-bk-600 hover:bg-bk-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 btn-press transition-colors shadow-sm">
+                                <i class="fas fa-cogs"></i> Generate
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- TAB 2: JADWAL PIKET -->
-                <div id="jadwal" class="tab-content space-y-6">
-                    <div class="glass-card p-5 rounded-2xl bg-gradient-to-r from-white to-brand-50/40">
-                        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <!-- Display Cards Jadwal -->
+                <div id="printableSchedule" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Cards injected by JS -->
+                </div>
+
+                <!-- Form & Log Tukar Jadwal -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-6">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm h-fit">
+                        <h3 class="text-xs font-bold text-navy-900 mb-3 border-l-4 border-bk-500 pl-2.5 uppercase tracking-wider">Pengajuan Tukar Piket</h3>
+                        <form id="swapForm" class="space-y-3 text-xs">
                             <div>
-                                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                                    <i class="fas fa-calendar-check text-brand-500"></i> Jadwal Piket Mingguan
-                                </h3>
-                                <p class="text-xs text-slate-500 mt-1">Pembagian 5 pos utama & 2 piket cadangan (Ruang BK).</p>
-                            </div>
-                            
-                            <!-- Admin Generator Controls -->
-                            <div id="btnGenerateJadwal" class="hidden flex-wrap items-center gap-3 w-full lg:w-auto">
-                                <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200">
-                                    <label class="text-xs text-slate-500 font-medium whitespace-nowrap">Senin Tgl:</label>
-                                    <input type="date" id="startDatePicker" class="text-xs font-semibold text-slate-700 outline-none bg-transparent">
-                                </div>
-                                <button onclick="generateSchedule()" class="bg-ocean-600 hover:bg-ocean-700 text-white px-4 py-2 rounded-xl shadow-md transition-all font-semibold text-xs flex items-center gap-2 whitespace-nowrap">
-                                    <i class="fas fa-magic"></i> Acak Jadwal Baru
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="scheduleContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Dynamic Cards -->
-                    </div>
-
-                    <!-- Form Tukar Jadwal -->
-                    <div class="glass-card p-6 rounded-2xl border-t-4 border-t-purple-500">
-                        <h3 class="text-base font-bold text-slate-800 mb-4">Ajukan Tukar Jadwal</h3>
-                        <form id="swapForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
-                            <div>
-                                <label class="block font-semibold text-slate-600 mb-1">Pengganti (Yang menggantikanmu)</label>
-                                <select id="swapPengganti" class="w-full border p-2.5 rounded-xl outline-none focus:border-purple-500 bg-slate-50" required></select>
+                                <label class="block font-bold text-slate-600 mb-1">Pengganti Anda</label>
+                                <select id="swapPengganti" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl outline-none focus:border-bk-500 font-semibold" required></select>
                             </div>
                             <div>
-                                <label class="block font-semibold text-slate-600 mb-1">Tanggal Piket Asal</label>
-                                <input type="date" id="swapTanggalAsal" class="w-full border p-2.5 rounded-xl outline-none focus:border-purple-500 bg-slate-50" required>
+                                <label class="block font-bold text-slate-600 mb-1">Tanggal Piket Asal</label>
+                                <input type="date" id="swapTanggalAsal" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl outline-none focus:border-bk-500" required>
                             </div>
-                            <div class="sm:col-span-2">
-                                <label class="block font-semibold text-slate-600 mb-1">Alasan Tukar</label>
-                                <input type="text" id="swapAlasan" class="w-full border p-2.5 rounded-xl outline-none focus:border-purple-500 bg-slate-50" placeholder="Contoh: Ada Bimbingan DPL / Sakit" required>
+                            <div>
+                                <label class="block font-bold text-slate-600 mb-1">Alasan Pertukaran</label>
+                                <input type="text" id="swapAlasan" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl outline-none focus:border-bk-500" placeholder="Cth: Tugas Universitas / Sakit" required>
                             </div>
-                            <div class="sm:col-span-2 flex justify-end">
-                                <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-md transition-all">Kirim Pengajuan</button>
-                            </div>
+                            <button type="submit" class="w-full bg-navy-800 hover:bg-navy-900 text-white font-bold py-2.5 rounded-xl btn-press shadow-sm">Kirim Pengajuan Tukar</button>
                         </form>
                     </div>
 
-                    <!-- Log Tukar Jadwal -->
-                    <div class="glass-card p-6 rounded-2xl">
-                        <h3 class="text-base font-bold text-slate-800 mb-4">Daftar Pengajuan Tukar Jadwal</h3>
-                        <div class="overflow-x-auto rounded-xl border border-slate-200">
-                            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                    <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xs font-bold text-navy-900 border-l-4 border-bk-500 pl-2.5 uppercase tracking-wider">Log Persetujuan Tukar Jadwal</h3>
+                            <button onclick="generatePDF('Tukar')" class="text-xs text-bk-700 font-bold hover:underline"><i class="fas fa-download mr-1"></i> Cetak Laporan</button>
+                        </div>
+                        <div class="overflow-x-auto border border-slate-100 rounded-xl flex-1">
+                            <table class="w-full text-left text-xs" id="tableTukarSource">
                                 <thead>
-                                    <tr class="bg-slate-50 text-slate-500 border-b">
-                                        <th class="p-3 font-semibold">Pemohon</th>
-                                        <th class="p-3 font-semibold">Pengganti</th>
-                                        <th class="p-3 font-semibold">Tanggal Asal</th>
-                                        <th class="p-3 font-semibold">Status</th>
-                                        <th class="p-3 font-semibold admin-only-col hidden">Aksi</th>
+                                    <tr class="bg-slate-50 text-slate-500 border-b border-slate-100">
+                                        <th class="p-3 font-bold">Pemohon</th>
+                                        <th class="p-3 font-bold">Pengganti</th>
+                                        <th class="p-3 font-bold">Tgl Asal & Alasan</th>
+                                        <th class="p-3 font-bold">Status</th>
+                                        <th class="p-3 font-bold admin-only-col hidden ignore-print">Aksi Admin</th>
                                     </tr>
                                 </thead>
-                                <tbody id="swapTableBody" class="divide-y divide-slate-100 bg-white">
-                                    <!-- Rendered dynamically -->
+                                <tbody id="swapTableBody" class="divide-y divide-slate-50"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: MANAJEMEN BACKUP PIKET (AUTOMATED BACKUP ENGINE) -->
+            <div id="backup" class="tab-content space-y-5">
+                <!-- Overview Banner -->
+                <div class="bg-gradient-to-r from-navy-900 via-navy-800 to-bk-800 text-white p-5 rounded-2xl shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="bg-bk-500 text-navy-900 text-[9px] font-black px-2 py-0.5 rounded-md uppercase">Otomatisasi Aktif</span>
+                            <h3 class="text-base font-extrabold tracking-wide">Sistem Backup & Pengalihan Piket</h3>
+                        </div>
+                        <p class="text-xs text-slate-300">Jika anggota berhalangan (Izin/Sakit/Tidak Hadir), sistem otomatis mengalihkan pos piket kepada anggota Cadangan / Backup.</p>
+                    </div>
+                    <button onclick="generatePDF('Backup')" class="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 btn-press transition-colors shrink-0">
+                        <i class="fas fa-file-pdf text-red-400"></i> Cetak Log Backup
+                    </button>
+                </div>
+
+                <!-- Backup Logs & Priority Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                    <!-- Status Ketersediaan Anggota -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                        <h3 class="text-xs font-bold text-navy-900 mb-3 border-l-4 border-bk-500 pl-2.5 uppercase tracking-wider">Status Ketersediaan Hari Ini</h3>
+                        <div class="space-y-2.5" id="backupRosterStatus">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Log Pengalihan Otomatis -->
+                    <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xs font-bold text-navy-900 border-l-4 border-bk-500 pl-2.5 uppercase tracking-wider">Riwayat Pengalihan Piket Otomatis</h3>
+                            <span class="text-[10px] text-slate-400 font-semibold">Tercatat Otomatis</span>
+                        </div>
+                        <div class="overflow-x-auto border border-slate-100 rounded-xl flex-1">
+                            <table class="w-full text-left text-xs" id="tableBackupSource">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 border-b border-slate-100">
+                                        <th class="p-3 font-bold">Waktu</th>
+                                        <th class="p-3 font-bold">Petugas Utama</th>
+                                        <th class="p-3 font-bold">Alasan Absent</th>
+                                        <th class="p-3 font-bold">Petugas Backup</th>
+                                        <th class="p-3 font-bold">Pos Dialihkan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="backupTableBody" class="divide-y divide-slate-50">
+                                    <tr>
+                                        <td colspan="5" class="p-4 text-center text-slate-400">Belum ada data pengalihan jadwal.</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- TAB 3: PRESENSI & IZIN -->
-                <div id="presensi" class="tab-content space-y-6">
-                    <div class="glass-card p-6 rounded-2xl border-t-4 border-t-brand-500">
-                        <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2"><i class="fas fa-clipboard-list text-brand-500"></i> Form Kehadiran Harian</h3>
-                        <form id="presensiForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
+            <!-- TAB 4: REKAP KEHADIRAN -->
+            <div id="presensi" class="tab-content space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <!-- Form Presensi Harian -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm h-fit">
+                        <h3 class="text-xs font-bold text-navy-900 mb-3 border-l-4 border-bk-500 pl-2.5 uppercase tracking-wider">Form Presensi Harian</h3>
+                        <form id="presensiForm" class="space-y-3 text-xs">
                             <div>
-                                <label class="block font-semibold text-slate-600 mb-1">Status Kehadiran</label>
-                                <select id="presensiStatus" class="w-full border p-2.5 rounded-xl outline-none focus:border-brand-500 bg-slate-50" required>
-                                    <option value="Hadir">Hadir (Tepat Waktu)</option>
-                                    <option value="Hadir Terlambat">Hadir (Terlambat)</option>
+                                <label class="block font-bold text-slate-600 mb-1">Status Kehadiran</label>
+                                <select id="presensiStatus" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl outline-none focus:border-bk-500 font-semibold" required>
+                                    <option value="Hadir">Hadir Tepat Waktu</option>
+                                    <option value="Terlambat">Hadir Terlambat</option>
                                     <option value="Izin">Izin (Halangan)</option>
                                     <option value="Sakit">Sakit</option>
+                                    <option value="Tidak Hadir">Tidak Hadir (Alpa)</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block font-semibold text-slate-600 mb-1">Keterangan / Alasan (Opsional)</label>
-                                <input type="text" id="presensiKet" class="w-full border p-2.5 rounded-xl outline-none focus:border-brand-500 bg-slate-50" placeholder="Isi jika terlambat/izin/sakit">
+                                <label class="block font-bold text-slate-600 mb-1">Catatan / Alasan (Jika Izin/Sakit)</label>
+                                <textarea id="presensiKet" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl outline-none focus:border-bk-500 h-20 resize-none" placeholder="Isi alasan atau keterangan kehadiran..."></textarea>
                             </div>
-                            <div class="sm:col-span-2 flex justify-end">
-                                <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-2.5 rounded-xl font-semibold shadow-md transition-all">Submit Presensi</button>
-                            </div>
+                            <button type="submit" class="w-full bg-bk-600 hover:bg-bk-700 text-white font-bold py-2.5 rounded-xl shadow-sm btn-press">Submit Presensi</button>
                         </form>
                     </div>
 
-                    <div class="glass-card p-6 rounded-2xl">
-                        <h3 class="text-base font-bold text-slate-800 mb-4">Log Kehadiran Hari Ini</h3>
-                        <div class="overflow-x-auto rounded-xl border border-slate-200">
-                            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                    <!-- Rekap Table -->
+                    <div class="md:col-span-2 bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xs font-bold text-navy-900 border-l-4 border-bk-500 pl-2.5 uppercase tracking-wider">Rekapitulasi Kehadiran Mahasiswa</h3>
+                            <button onclick="generatePDF('Presensi')" class="bg-navy-800 hover:bg-navy-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 btn-press shadow-sm">
+                                <i class="fas fa-print"></i> Cetak Rekap PDF
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto border border-slate-100 rounded-xl flex-1">
+                            <table class="w-full text-left text-xs" id="tablePresensiSource">
                                 <thead>
-                                    <tr class="bg-slate-50 text-slate-500 border-b">
-                                        <th class="p-3 font-semibold">Waktu</th>
-                                        <th class="p-3 font-semibold">Nama Mahasiswa</th>
-                                        <th class="p-3 font-semibold">Status</th>
-                                        <th class="p-3 font-semibold">Keterangan</th>
+                                    <tr class="bg-slate-50 text-slate-500 border-b border-slate-100">
+                                        <th class="p-3 font-bold">Waktu Input</th>
+                                        <th class="p-3 font-bold">Nama Mahasiswa</th>
+                                        <th class="p-3 font-bold">Status</th>
+                                        <th class="p-3 font-bold">Catatan</th>
                                     </tr>
                                 </thead>
-                                <tbody id="presensiTableBody" class="divide-y divide-slate-100 bg-white">
-                                    <!-- Rendered dynamically -->
-                                </tbody>
+                                <tbody id="presensiTableBody" class="divide-y divide-slate-50"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- TAB 4: PEMINJAMAN RUANG BK -->
-                <div id="ruangan" class="tab-content space-y-6">
-                    <div class="glass-card p-6 rounded-2xl border-t-4 border-t-amber-500">
-                        <h3 class="text-base font-bold text-slate-800 mb-4">Booking Ruang Konseling BK</h3>
-                        <form id="roomForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
+            <!-- TAB 5: PEMINJAMAN RUANG BK -->
+            <div id="ruangan" class="tab-content space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <!-- Form Booking Ruang -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm h-fit">
+                        <h3 class="text-xs font-bold text-navy-900 mb-3 border-l-4 border-bk-500 pl-2.5 uppercase tracking-wider">Reservasi Ruang BK</h3>
+                        <form id="roomForm" class="space-y-3 text-xs">
                             <div>
-                                <label class="block font-semibold text-slate-600 mb-1">Nama Klien / Siswa</label>
-                                <input type="text" id="roomKlien" class="w-full border p-2.5 rounded-xl outline-none focus:border-amber-500 bg-slate-50" placeholder="Contoh: Budi (XI MIPA 2)" required>
+                                <label class="block font-bold text-slate-600 mb-1">Nama Siswa / Klien BK</label>
+                                <input type="text" id="roomKlien" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl outline-none focus:border-bk-500" placeholder="Cth: Budi (XI MIPA 2)" required>
                             </div>
                             <div>
-                                <label class="block font-semibold text-slate-600 mb-1">Keperluan</label>
-                                <select id="roomKet" class="w-full border p-2.5 rounded-xl outline-none focus:border-amber-500 bg-slate-50" required>
+                                <label class="block font-bold text-slate-600 mb-1">Jenis Layanan Konseling</label>
+                                <select id="roomKet" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl outline-none focus:border-bk-500 font-semibold" required>
                                     <option value="Konseling Individu">Konseling Individu</option>
                                     <option value="Konseling Kelompok">Konseling Kelompok</option>
                                     <option value="Bimbingan Pribadi">Bimbingan Pribadi</option>
-                                    <option value="Lainnya">Lainnya</option>
+                                    <option value="Mediasi Siswa">Mediasi Siswa / Lainnya</option>
                                 </select>
                             </div>
-                            <div>
-                                <label class="block font-semibold text-slate-600 mb-1">Tanggal Pelaksanaan</label>
-                                <input type="date" id="roomTanggal" class="w-full border p-2.5 rounded-xl outline-none focus:border-amber-500 bg-slate-50" required>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block font-bold text-slate-600 mb-1">Tanggal</label>
+                                    <input type="date" id="roomTanggal" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl outline-none focus:border-bk-500" required>
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-slate-600 mb-1">Jam Sesi</label>
+                                    <input type="time" id="roomJam" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl outline-none focus:border-bk-500" required>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block font-semibold text-slate-600 mb-1">Jam Pelaksanaan</label>
-                                <input type="time" id="roomJam" class="w-full border p-2.5 rounded-xl outline-none focus:border-amber-500 bg-slate-50" required>
-                            </div>
-                            <div class="sm:col-span-2 flex justify-end">
-                                <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-6 py-2.5 rounded-xl shadow-md transition-all">Ajukan Ruangan</button>
-                            </div>
+                            <button type="submit" class="w-full bg-navy-800 hover:bg-navy-900 text-white font-bold py-2.5 rounded-xl shadow-sm btn-press">Ajukan Peminjaman</button>
                         </form>
                     </div>
 
-                    <div class="glass-card p-6 rounded-2xl">
-                        <h3 class="text-base font-bold text-slate-800 mb-4">Jadwal Penggunaan Ruang</h3>
-                        <div class="overflow-x-auto rounded-xl border border-slate-200">
-                            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                    <!-- Log Ruangan -->
+                    <div class="md:col-span-2 bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xs font-bold text-navy-900 border-l-4 border-bk-500 pl-2.5 uppercase tracking-wider">Jadwal Penggunaan Ruang Konseling</h3>
+                            <button onclick="generatePDF('Ruangan')" class="bg-navy-800 hover:bg-navy-900 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 btn-press shadow-sm">
+                                <i class="fas fa-print"></i> Cetak Log PDF
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto border border-slate-100 rounded-xl flex-1">
+                            <table class="w-full text-left text-xs" id="tableRuanganSource">
                                 <thead>
-                                    <tr class="bg-slate-50 text-slate-500 border-b">
-                                        <th class="p-3 font-semibold">Waktu</th>
-                                        <th class="p-3 font-semibold">Konselor</th>
-                                        <th class="p-3 font-semibold">Siswa/Klien</th>
-                                        <th class="p-3 font-semibold">Status</th>
-                                        <th class="p-3 font-semibold admin-only-col hidden">Aksi</th>
+                                    <tr class="bg-slate-50 text-slate-500 border-b border-slate-100">
+                                        <th class="p-3 font-bold">Jadwal Sesi</th>
+                                        <th class="p-3 font-bold">Konselor (Mahasiswa)</th>
+                                        <th class="p-3 font-bold">Siswa & Layanan</th>
+                                        <th class="p-3 font-bold">Status</th>
+                                        <th class="p-3 font-bold admin-only-col hidden ignore-print">Aksi Admin</th>
                                     </tr>
                                 </thead>
-                                <tbody id="roomTableBody" class="divide-y divide-slate-100 bg-white">
-                                    <!-- Rendered dynamically -->
-                                </tbody>
+                                <tbody id="roomTableBody" class="divide-y divide-slate-50"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
-
-                <!-- TAB 5: RUANG DISKUSI -->
-                <div id="diskusi" class="tab-content h-[calc(100vh-170px)] sm:h-[calc(100vh-150px)]">
-                    <div class="glass-card rounded-2xl flex flex-col h-full overflow-hidden shadow-lg border border-slate-200">
-                        <div class="bg-gradient-to-r from-ocean-800 to-brand-800 px-5 py-3.5 text-white flex justify-between items-center">
-                            <h3 class="font-bold text-sm sm:text-base flex items-center gap-2"><i class="fas fa-comments"></i> Grup Koordinasi PPL</h3>
-                            <span class="text-[10px] bg-white/20 px-2.5 py-1 rounded-full"><i class="fas fa-circle text-green-400 text-[8px] mr-1"></i> Live</span>
-                        </div>
-                        
-                        <div id="chatBox" class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-slate-50/50">
-                            <!-- Rendered dynamically -->
-                        </div>
-
-                        <form id="chatForm" class="p-3 sm:p-4 bg-white border-t border-slate-200 flex gap-2 items-center">
-                            <input type="text" id="chatInput" class="flex-1 bg-slate-100 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-700 outline-none focus:ring-2 focus:ring-ocean-200 transition-all border border-slate-200" placeholder="Ketik pesan info kesiswaan..." required>
-                            <button type="submit" class="bg-ocean-600 hover:bg-ocean-700 text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 transition-transform active:scale-95">
-                                <i class="fas fa-paper-plane text-xs"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- TAB 6: AI ASISTEN BK -->
-                <div id="ai-assistant" class="tab-content space-y-6">
-                    <div class="bg-gradient-to-r from-purple-900 to-indigo-900 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
-                        <h2 class="text-xl sm:text-2xl font-bold mb-1">Gemini AI BK Assistant</h2>
-                        <p class="text-purple-200 text-xs sm:text-sm">Asisten cerdas pendukung administrasi & analisis kasus Bimbingan Konseling.</p>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="glass-card p-5 rounded-2xl flex flex-col h-full">
-                            <h3 class="text-base font-bold text-slate-800 mb-2">Penyusun Jurnal Piket</h3>
-                            <p class="text-xs text-slate-500 mb-3">Ketik singkat kegiatanmu, AI akan menyusun narasi laporan formal.</p>
-                            <textarea id="aiReportInput" class="w-full border rounded-xl p-3 mb-3 text-xs bg-slate-50 outline-none focus:border-purple-500 resize-none h-28" placeholder="Contoh: Datang jam 06.30. Jaga gerbang. Ada 5 anak telat. Jam 10 bantu rekap absensi..."></textarea>
-                            <button onclick="generateAIReport()" id="btnGenerateReport" class="bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-xl font-semibold text-xs shadow-md">Buat Laporan Formal</button>
-                            <div id="aiReportLoading" class="hidden my-3 text-center text-purple-600 text-xs font-medium"><i class="fas fa-circle-notch fa-spin mr-1"></i> Gemini sedang menyusun...</div>
-                            <div id="aiReportOutputContainer" class="hidden mt-3">
-                                <div id="aiReportOutput" class="p-3 bg-purple-50 border border-purple-100 rounded-xl text-xs text-slate-700 leading-relaxed max-h-48 overflow-y-auto"></div>
-                                <button onclick="copyToClipboard('aiReportOutput')" class="mt-2 text-xs text-purple-600 font-semibold hover:underline block ml-auto"><i class="fas fa-copy mr-1"></i> Salin Teks</button>
-                            </div>
-                        </div>
-
-                        <div class="glass-card p-5 rounded-2xl flex flex-col h-full">
-                            <h3 class="text-base font-bold text-slate-800 mb-2">Rekomendasi Kasus Siswa</h3>
-                            <p class="text-xs text-slate-500 mb-3">Ceritakan kasus siswa, AI akan memberi saran pendekatan teori konseling.</p>
-                            <textarea id="aiCaseInput" class="w-full border rounded-xl p-3 mb-3 text-xs bg-slate-50 outline-none focus:border-indigo-500 resize-none h-28" placeholder="Contoh: Siswa kelas XI IPA sering membolos jam matematika karena cemas berlebihan..."></textarea>
-                            <button onclick="analyzeAICase()" id="btnAnalyzeCase" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-semibold text-xs shadow-md">Analisis Kasus</button>
-                            <div id="aiCaseLoading" class="hidden my-3 text-center text-indigo-600 text-xs font-medium"><i class="fas fa-circle-notch fa-spin mr-1"></i> Gemini menganalisis...</div>
-                            <div id="aiCaseOutputContainer" class="hidden mt-3">
-                                <div id="aiCaseOutput" class="p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-xs text-slate-700 leading-relaxed max-h-48 overflow-y-auto"></div>
-                                <button onclick="copyToClipboard('aiCaseOutput')" class="mt-2 text-xs text-indigo-600 font-semibold hover:underline block ml-auto"><i class="fas fa-copy mr-1"></i> Salin Teks</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
-        </main>
-    </div>
+
+            <!-- TAB 6: FORUM DISKUSI INTERNAL -->
+            <div id="diskusi" class="tab-content h-[calc(100vh-130px)]">
+                <div class="bg-white rounded-2xl flex flex-col h-full border border-slate-100 shadow-sm overflow-hidden">
+                    <div class="bg-navy-900 px-5 py-3.5 text-white flex justify-between items-center">
+                        <div>
+                            <h3 class="font-bold text-xs flex items-center gap-2"><i class="fas fa-comments text-bk-400"></i> Forum Komunikasi Internal PPL BK</h3>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Media koordinasi resmi harian antar anggota tim</p>
+                        </div>
+                        <span class="text-[10px] bg-white/10 px-2.5 py-1 rounded-full font-medium border border-white/20"><i class="fas fa-circle text-emerald-400 text-[7px] mr-1 animate-pulse"></i> Realtime Sync</span>
+                    </div>
+                    
+                    <div id="chatBox" class="flex-1 p-5 overflow-y-auto space-y-3 bg-slate-50/50">
+                        <!-- Chat Messages rendered dynamically -->
+                    </div>
+
+                    <form id="chatForm" class="p-3.5 bg-white border-t border-slate-100 flex gap-2.5 items-center">
+                        <input type="text" id="chatInput" class="flex-1 bg-slate-50 rounded-xl px-4 py-2.5 text-xs text-slate-800 outline-none border border-slate-200 focus:border-bk-500 transition-colors" placeholder="Ketik informasi / kordinasi piket..." required>
+                        <button type="submit" class="bg-bk-600 hover:bg-bk-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold btn-press shadow-sm flex items-center gap-1.5">
+                            Kirim <i class="fas fa-paper-plane text-[10px]"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </main>
 
     <!-- Mobile Bottom Navigation Bar -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-30 flex justify-around p-2 shadow-lg">
-        <button onclick="switchTab('dashboard')" class="nav-btn-mobile flex flex-col items-center p-1 text-brand-500">
-            <i class="fas fa-home text-base"></i>
-            <span class="text-[9px] font-medium mt-0.5">Home</span>
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-30 flex justify-around p-1.5 shadow-[0_-8px_25px_rgba(0,0,0,0.05)] pb-safe">
+        <button onclick="switchTab('dashboard')" class="nav-btn-mobile flex flex-col items-center p-1.5 text-bk-600 w-14 group">
+            <i class="fas fa-chart-pie text-base group-active:scale-90 transition-transform"></i>
+            <span class="text-[9px] font-bold mt-0.5">Home</span>
         </button>
-        <button onclick="switchTab('jadwal')" class="nav-btn-mobile flex flex-col items-center p-1 text-slate-400">
-            <i class="fas fa-calendar-alt text-base"></i>
-            <span class="text-[9px] font-medium mt-0.5">Jadwal</span>
+        <button onclick="switchTab('jadwal')" class="nav-btn-mobile flex flex-col items-center p-1.5 text-slate-400 w-14 group">
+            <i class="fas fa-calendar-alt text-base group-active:scale-90 transition-transform"></i>
+            <span class="text-[9px] font-bold mt-0.5">Jadwal</span>
         </button>
-        <button onclick="switchTab('presensi')" class="nav-btn-mobile flex flex-col items-center p-1 text-slate-400">
-            <i class="fas fa-clipboard-check text-base"></i>
-            <span class="text-[9px] font-medium mt-0.5">Presensi</span>
+        <button onclick="switchTab('backup')" class="nav-btn-mobile flex flex-col items-center p-1.5 text-slate-400 w-14 group">
+            <i class="fas fa-user-shield text-base group-active:scale-90 transition-transform"></i>
+            <span class="text-[9px] font-bold mt-0.5">Backup</span>
         </button>
-        <button onclick="switchTab('ruangan')" class="nav-btn-mobile flex flex-col items-center p-1 text-slate-400">
-            <i class="fas fa-door-open text-base"></i>
-            <span class="text-[9px] font-medium mt-0.5">Ruang BK</span>
+        <button onclick="switchTab('presensi')" class="nav-btn-mobile flex flex-col items-center p-1.5 text-slate-400 w-14 group">
+            <i class="fas fa-clipboard-user text-base group-active:scale-90 transition-transform"></i>
+            <span class="text-[9px] font-bold mt-0.5">Absen</span>
         </button>
-        <button onclick="switchTab('diskusi')" class="nav-btn-mobile flex flex-col items-center p-1 text-slate-400 relative">
-            <i class="fas fa-comments text-base"></i>
-            <span class="text-[9px] font-medium mt-0.5">Diskusi</span>
-            <span id="chatBadgeMobile" class="absolute top-1 right-2 w-2 h-2 bg-red-500 rounded-full hidden"></span>
+        <button onclick="switchTab('ruangan')" class="nav-btn-mobile flex flex-col items-center p-1.5 text-slate-400 w-14 group">
+            <i class="fas fa-door-open text-base group-active:scale-90 transition-transform"></i>
+            <span class="text-[9px] font-bold mt-0.5">Ruang</span>
         </button>
     </nav>
 
-    <!-- Firebase Script Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // Firebase Config Placeholder (Users replace with their project config)
         const firebaseConfig = {
 		apiKey: "AIzaSyALUqI10cUB4dPXXTbVK87DJufugplm5zo",
 		authDomain: "pplppg-bk-sman12.firebaseapp.com",
@@ -472,59 +660,74 @@
 		storageBucket: "pplppg-bk-sman12.firebasestorage.app",
 		messagingSenderId: "754673750721",
 		appId: "1:754673750721:web:4ef5817e6a6aa6285fba40"
-};
+        };
 
-        // =========================================================================
-
+        // Roster Data
         const students = [
-            { id: "2530719", name: "Salsabila Syifa Al Farisy", role: "Anggota" },
-            { id: "2530722", name: "Diaz Robigo", role: "Anggota" },
-            { id: "2530723", name: "Afwan Duta Ainullah", role: "Ketua PPL" }, 
-            { id: "2530725", name: "Febrinda Nurlisa Efendi", role: "Anggota" },
-            { id: "2530727", name: "Ahmad Iqbal", role: "Anggota" },
-            { id: "2530730", name: "Dandi Prayoga", role: "Anggota" },
-            { id: "2530732", name: "AGNIS MEDINA", role: "Anggota" }
+            { id: "2530719", name: "Salsabila Syifa Al Farisy", role: "Anggota PPL" },
+            { id: "2530722", name: "Diaz Robigo", role: "Anggota PPL" },
+            { id: "2530723", name: "Afwan Duta Ainullah", role: "Ketua PPL BK" }, 
+            { id: "2530725", name: "Febrinda Nurlisa Efendi", role: "Anggota PPL" },
+            { id: "2530727", name: "Ahmad Iqbal", role: "Anggota PPL" },
+            { id: "2530730", name: "Dandi Prayoga", role: "Anggota PPL" },
+            { id: "2530732", name: "Agnis Medina", role: "Anggota PPL" }
         ];
+
         const days = ['Senin', 'Selasa', 'Jumat'];
         const posts = ['Gerbang Utama', 'Lobby', 'KBM dan MBG', 'Sekre BK', 'Perpustakaan'];
 
         let currentUser = null; 
         let isAdmin = false;
-        let db, auth;
-        let firestoreUser = null; 
-        let activeTab = 'dashboard';
+        let db, auth, firestoreUser = null;
+        let timelineData = [];
+        let currentScheduleData = null;
+        let backupLogsList = [];
 
-        window.showToast = function(msg, isSuccess = true) {
+        window.showToast = function(title, msg, isSuccess = true) {
             const toast = document.getElementById('toast');
-            const icon = document.getElementById('toastIcon');
+            document.getElementById('toastTitle').innerText = title;
             document.getElementById('toastMessage').innerText = msg;
             
-            icon.className = isSuccess ? "fas fa-check-circle text-brand-500 text-xl" : "fas fa-exclamation-circle text-red-500 text-xl";
-            toast.className = "fixed top-5 right-5 z-50 transform transition-all duration-300 translate-x-0 opacity-100 pointer-events-auto";
+            const icon = document.getElementById('toastIcon');
+            icon.className = isSuccess ? "fas fa-check-circle text-emerald-500 text-xl mt-0.5" : "fas fa-exclamation-circle text-amber-500 text-xl mt-0.5";
+            toast.className = "fixed top-5 right-5 z-50 transform transition-all duration-300 translate-x-0 opacity-100 pointer-events-auto shadow-2xl rounded-xl";
             
             setTimeout(() => {
-                toast.className = "fixed top-5 right-5 z-50 transform transition-all duration-300 translate-x-full opacity-0 pointer-events-none";
-            }, 3000);
+                toast.className = "fixed top-5 right-5 z-50 transform transition-all duration-300 translate-x-[120%] opacity-0 pointer-events-none shadow-2xl rounded-xl";
+            }, 4000);
+        }
+
+        window.toggleNotif = function() {
+            const el = document.getElementById('notifDropdown');
+            el.classList.toggle('show');
+        }
+
+        window.clearNotifBadge = function() {
+            document.getElementById('notifBadge').classList.add('hidden');
         }
 
         function renderInitialUI() {
-            const tbody = document.getElementById('studentList');
+            const dList = document.getElementById('dashboardStudentList');
             const selectPengganti = document.getElementById('swapPengganti');
-            tbody.innerHTML = '';
-            selectPengganti.innerHTML = '';
+            dList.innerHTML = ''; selectPengganti.innerHTML = '';
 
             students.forEach(s => {
                 const isAdminRole = s.role.includes('Ketua');
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="p-3 border-b font-medium text-slate-800">${s.name}</td>
-                        <td class="p-3 border-b text-slate-500">${s.id}</td>
-                        <td class="p-3 border-b">
-                            <span class="px-2.5 py-0.5 text-[10px] rounded-full ${isAdminRole ? 'bg-brand-100 text-brand-700 font-bold border border-brand-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">${s.role}</span>
-                        </td>
-                    </tr>`;
+                dList.innerHTML += `
+                    <div class="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                        <div class="w-7 h-7 rounded-full ${isAdminRole ? 'bg-navy-800 text-white' : 'bg-slate-200 text-slate-700'} flex items-center justify-center font-bold text-xs">${s.name.charAt(0)}</div>
+                        <div class="flex-1 overflow-hidden">
+                            <p class="text-xs font-bold text-slate-800 truncate">${s.name}</p>
+                            <p class="text-[10px] text-slate-500">NIM. ${s.id}</p>
+                        </div>
+                        <span class="text-[9px] font-bold px-2 py-0.5 rounded-md ${isAdminRole ? 'bg-bk-100 text-bk-800' : 'bg-slate-200 text-slate-600'}">${s.role}</span>
+                    </div>`;
                 selectPengganti.innerHTML += `<option value="${s.name}">${s.name}</option>`;
             });
+
+            document.getElementById('sidebarName').innerText = currentUser;
+            document.getElementById('sidebarRole').innerText = isAdmin ? "Ketua PPL BK (Admin)" : "Anggota PPL";
+            document.getElementById('sidebarAvatar').innerText = currentUser.charAt(0);
 
             if (isAdmin) {
                 document.getElementById('btnGenerateJadwal').classList.remove('hidden');
@@ -534,42 +737,33 @@
         }
 
         window.checkIdentity = function() {
-            const savedUser = localStorage.getItem('currentUser_ppl_bk');
+            const savedUser = localStorage.getItem('sim_pplbk_user');
             if (savedUser) {
                 currentUser = savedUser;
                 isAdmin = currentUser === "Afwan Duta Ainullah";
-                document.getElementById('headerUserName').innerText = currentUser;
                 document.getElementById('identityModal').classList.add('hidden');
                 renderInitialUI();
                 initFirebase(); 
-            } else {
-                document.getElementById('globalLoading').classList.add('hidden');
             }
         }
 
         window.setIdentity = function() {
             const nimInput = document.getElementById('nimInput').value.trim();
-            if (!nimInput) {
-                showToast("NIM tidak boleh kosong!", false);
-                return;
-            }
+            if (!nimInput) return showToast("Gagal", "NIM tidak boleh kosong!", false);
 
             const student = students.find(s => s.id === nimInput);
-            if (!student) {
-                showToast("NIM tidak terdaftar. Cek kembali!", false);
-                return;
-            }
+            if (!student) return showToast("Gagal", "NIM tidak terdaftar di sistem.", false);
 
-            localStorage.setItem('currentUser_ppl_bk', student.name);
+            localStorage.setItem('sim_pplbk_user', student.name);
             document.getElementById('identityCard').classList.add('scale-95', 'opacity-0');
             setTimeout(() => {
                 checkIdentity();
-                showToast(`Selamat datang, ${student.name}!`);
+                showToast("Berhasil", `Autentikasi sukses. Selamat bertugas, ${student.name}!`);
             }, 300);
         }
 
         window.logout = function() {
-            localStorage.removeItem('currentUser_ppl_bk');
+            localStorage.removeItem('sim_pplbk_user');
             location.reload();
         }
 
@@ -586,11 +780,112 @@
             } catch (error) {
                 console.error("Firebase Error:", error);
                 document.getElementById('globalLoading').classList.add('hidden');
-                showToast("Gagal terhubung ke database. Cek Config Firebase-mu!", false);
+                renderSchedule({days: []}); 
+                renderBackupRoster();
+                showToast("Mode Demo", "Menjalankan sistem dengan penyimpanan lokal.", false);
             }
         }
 
+        function buildTimeline() {
+            timelineData.sort((a, b) => b.timestamp - a.timestamp);
+            const container = document.getElementById('dashboardTimeline');
+            const notifList = document.getElementById('notifList');
+            container.innerHTML = ''; notifList.innerHTML = '';
+            
+            const recent = timelineData.slice(0, 6);
+            if(recent.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 ml-4">Belum ada aktivitas terekam.</p>`;
+                return;
+            }
+
+            recent.forEach((item, idx) => {
+                let icon = item.type === 'room' ? 'fa-door-open text-amber-500' : item.type === 'swap' ? 'fa-right-left text-blue-500' : item.type === 'backup' ? 'fa-user-shield text-bk-500' : 'fa-clipboard-check text-emerald-500';
+                let timeDesc = new Date(item.timestamp).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+                
+                container.innerHTML += `
+                    <div class="relative pl-5 ${idx !== recent.length-1 ? 'pb-3.5' : ''}">
+                        <div class="absolute left-[-8px] top-1 w-3.5 h-3.5 bg-white border-2 border-slate-300 rounded-full flex items-center justify-center z-10">
+                            <div class="w-1 h-1 bg-slate-500 rounded-full"></div>
+                        </div>
+                        <p class="text-xs font-bold text-navy-900">${item.title}</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5">${item.desc} <span class="ml-2 text-slate-400">• ${timeDesc}</span></p>
+                    </div>`;
+                
+                notifList.innerHTML += `
+                    <div class="p-3 hover:bg-slate-50 transition-colors flex items-start gap-2.5">
+                        <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0"><i class="fas ${icon} text-xs"></i></div>
+                        <div>
+                            <p class="text-[11px] font-bold text-navy-900 leading-tight">${item.title}</p>
+                            <p class="text-[9px] text-slate-500 mt-0.5">${item.desc}</p>
+                        </div>
+                    </div>`;
+            });
+            document.getElementById('notifBadge').classList.remove('hidden');
+        }
+
         function setupListeners() {
+            // Presensi & Trigger Auto Backup
+            onSnapshot(collection(db, `presensi`), (snapshot) => {
+                let data = [];
+                snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
+                data.sort((a, b) => b.timestamp - a.timestamp); 
+                renderPresensi(data);
+                
+                timelineData = timelineData.filter(t => t.type !== 'presensi');
+                data.forEach(d => timelineData.push({type: 'presensi', title: `${d.nama} Presensi (${d.status})`, desc: `Catatan: ${d.ket}`, timestamp: d.timestamp}));
+                buildTimeline();
+                renderBackupRoster(data);
+            });
+
+            // Backup Logs Collection
+            onSnapshot(collection(db, `backup_logs`), (snapshot) => {
+                let data = [];
+                snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
+                data.sort((a, b) => b.timestamp - a.timestamp);
+                backupLogsList = data;
+                renderBackupLogs(data);
+
+                timelineData = timelineData.filter(t => t.type !== 'backup');
+                data.forEach(d => timelineData.push({type: 'backup', title: `Pengalihan Piket Backup`, desc: `${d.petugasAwal} dialihkan ke ${d.petugasBackup} (${d.pos})`, timestamp: d.timestamp}));
+                buildTimeline();
+            });
+
+            // Rooms
+            onSnapshot(collection(db, `rooms`), (snapshot) => {
+                let data = [];
+                snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
+                data.sort((a, b) => b.timestamp - a.timestamp);
+                document.getElementById('dashRoomCount').innerText = data.length;
+                renderRooms(data);
+                
+                timelineData = timelineData.filter(t => t.type !== 'room');
+                data.forEach(d => timelineData.push({type: 'room', title: `Reservasi Ruang: ${d.konselor}`, desc: `Klien: ${d.klien} (${d.status})`, timestamp: d.timestamp}));
+                buildTimeline();
+                updatePendingTotal();
+            });
+
+            // Swaps
+            onSnapshot(collection(db, `swaps`), (snapshot) => {
+                let data = [];
+                snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
+                data.sort((a, b) => b.timestamp - a.timestamp);
+                renderSwaps(data);
+                
+                timelineData = timelineData.filter(t => t.type !== 'swap');
+                data.forEach(d => timelineData.push({type: 'swap', title: `Pengajuan Tukar Piket`, desc: `${d.pemohon} -> ${d.pengganti} (${d.status})`, timestamp: d.timestamp}));
+                buildTimeline();
+                updatePendingTotal();
+            });
+
+            // Schedule
+            onSnapshot(collection(db, `schedule`), (snapshot) => {
+                let scheduleData = null;
+                snapshot.forEach(doc => { if(doc.id === 'current') scheduleData = doc.data(); });
+                currentScheduleData = scheduleData;
+                renderSchedule(scheduleData);
+            });
+
+            // Chats
             onSnapshot(collection(db, `chats`), (snapshot) => {
                 let msgs = [];
                 snapshot.forEach(doc => msgs.push({ id: doc.id, ...doc.data() }));
@@ -598,40 +893,50 @@
                 renderChats(msgs);
             });
 
-            onSnapshot(collection(db, `presensi`), (snapshot) => {
-                let data = [];
-                snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
-                data.sort((a, b) => b.timestamp - a.timestamp); 
-                renderPresensi(data);
-            });
-
-            onSnapshot(collection(db, `rooms`), (snapshot) => {
-                let data = [];
-                let pending = 0;
-                snapshot.forEach(doc => {
-                    const d = { id: doc.id, ...doc.data() };
-                    data.push(d);
-                    if(d.status === 'Pending') pending++;
-                });
-                data.sort((a, b) => b.timestamp - a.timestamp);
-                document.getElementById('pendingCount').innerText = pending;
-                renderRooms(data);
-            });
-
-            onSnapshot(collection(db, `swaps`), (snapshot) => {
-                let data = [];
-                snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
-                data.sort((a, b) => b.timestamp - a.timestamp);
-                renderSwaps(data);
-            });
-
-            onSnapshot(collection(db, `schedule`), (snapshot) => {
-                let scheduleData = null;
-                snapshot.forEach(doc => { if(doc.id === 'current') scheduleData = doc.data(); });
-                renderSchedule(scheduleData);
-            });
-
             bindForms();
+        }
+
+        function updatePendingTotal() {
+            const count = document.querySelectorAll('span.bg-amber-100').length;
+            document.getElementById('dashPendingCount').innerText = count;
+        }
+
+        async function checkAndTriggerAutoBackup(absentMember, status, ket) {
+            if (!currentScheduleData || !currentScheduleData.days) return;
+
+            // Check if absent member is assigned to a main post today
+            let todayName = new Date().toLocaleDateString('id-ID', { weekday: 'long' });
+            // Map day
+            let matchedDay = currentScheduleData.days.find(d => d.day.toLowerCase() === todayName.toLowerCase() || todayName.includes(d.day));
+            if (!matchedDay) matchedDay = currentScheduleData.days[0]; // Fallback to current schedule day
+
+            let assignedPosIndex = matchedDay.posData.findIndex(p => p.name === absentMember);
+            if (assignedPosIndex !== -1) {
+                // Find backup officer from standby or available members
+                let availableBackup = matchedDay.standbyData.find(st => st !== absentMember) || 
+                                     students.find(s => s.name !== absentMember && !matchedDay.posData.some(p => p.name === s.name))?.name;
+
+                if (availableBackup) {
+                    let originalPos = matchedDay.posData[assignedPosIndex].pos;
+                    // Auto Reassign in schedule
+                    matchedDay.posData[assignedPosIndex].name = availableBackup;
+                    
+                    // Save log to Firestore
+                    let nowStr = new Date().toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}) + ' ' + new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+                    await addDoc(collection(db, `backup_logs`), {
+                        petugasAwal: absentMember,
+                        alasan: `${status} (${ket})`,
+                        petugasBackup: availableBackup,
+                        pos: originalPos,
+                        waktu: nowStr,
+                        timestamp: Date.now()
+                    });
+
+                    // Update schedule
+                    await setDoc(doc(db, `schedule`, 'current'), currentScheduleData);
+                    showToast("Automasi Backup", `Jadwal piket ${absentMember} di ${originalPos} telah dialihkan kepada ${availableBackup} sebagai backup.`);
+                }
+            }
         }
 
         function bindForms() {
@@ -651,13 +956,23 @@
                 e.preventDefault();
                 if(!firestoreUser) return;
                 const now = new Date();
-                const timeString = now.toLocaleDateString('id-ID') + " " + now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+                const dateStr = now.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'});
+                const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+                const statusVal = document.getElementById('presensiStatus').value;
+                const ketVal = document.getElementById('presensiKet').value || '-';
+
                 await addDoc(collection(db, `presensi`), {
-                    nama: currentUser, status: document.getElementById('presensiStatus').value,
-                    ket: document.getElementById('presensiKet').value || '-', waktu: timeString, timestamp: Date.now()
+                    nama: currentUser, status: statusVal,
+                    ket: ketVal, waktu: `${dateStr} - ${timeStr}`, timestamp: Date.now()
                 });
+
+                // Trigger Auto Backup if Izin / Sakit / Tidak Hadir
+                if (['Izin', 'Sakit', 'Tidak Hadir'].includes(statusVal)) {
+                    await checkAndTriggerAutoBackup(currentUser, statusVal, ketVal);
+                }
+
                 document.getElementById('presensiForm').reset();
-                showToast("Presensi berhasil dicatat!");
+                showToast("Sukses", "Data kehadiran berhasil dicatat.");
             });
 
             document.getElementById('roomForm').addEventListener('submit', async (e) => {
@@ -669,7 +984,7 @@
                     ket: document.getElementById('roomKet').value, status: 'Pending', timestamp: Date.now()
                 });
                 document.getElementById('roomForm').reset();
-                showToast("Pengajuan ruangan terkirim!");
+                showToast("Terkirim", "Pengajuan reservasi diteruskan ke Admin.");
             });
 
             document.getElementById('swapForm').addEventListener('submit', async (e) => {
@@ -681,7 +996,7 @@
                     status: 'Pending', timestamp: Date.now()
                 });
                 document.getElementById('swapForm').reset();
-                showToast("Pengajuan tukar jadwal terkirim!");
+                showToast("Terkirim", "Pengajuan tukar piket menunggu persetujuan Admin.");
             });
         }
 
@@ -691,19 +1006,15 @@
             box.innerHTML = '';
             msgs.forEach(chat => {
                 const isMe = chat.sender === currentUser;
-                const isAdminSender = chat.sender.includes('Afwan Duta Ainullah');
-                let avatarColor = isMe ? 'bg-ocean-100 text-ocean-600' : (isAdminSender ? 'bg-brand-100 text-brand-600 border border-brand-300' : 'bg-slate-200 text-slate-600');
-                let initial = chat.sender.charAt(0);
-
+                const isAdminSender = chat.sender.includes('Afwan Duta');
                 box.innerHTML += `
                     <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
-                        ${!isMe ? `<div class="w-7 h-7 rounded-full ${avatarColor} flex-shrink-0 flex items-center justify-center text-xs font-bold mr-2 mt-1">${initial}</div>` : ''}
-                        <div class="max-w-[80%]">
-                            <div class="flex items-baseline ${isMe ? 'justify-end' : 'justify-start'} mb-0.5 gap-1.5">
-                                <span class="text-[10px] text-slate-500 font-medium">${chat.sender}</span>
+                        <div class="max-w-[75%]">
+                            <div class="flex items-baseline ${isMe ? 'justify-end' : 'justify-start'} mb-1 gap-2">
+                                <span class="text-[10px] font-bold text-slate-600">${chat.sender}</span>
                                 <span class="text-[9px] text-slate-400">${chat.time}</span>
                             </div>
-                            <div class="${isMe ? 'bg-ocean-600 text-white rounded-l-xl rounded-br-xl' : 'bg-white text-slate-700 border border-slate-200 rounded-r-xl rounded-bl-xl'} p-2.5 text-xs leading-relaxed shadow-sm">
+                            <div class="${isMe ? 'bg-navy-800 text-white rounded-l-xl rounded-br-xl' : (isAdminSender ? 'bg-bk-50 border border-bk-200 text-slate-800' : 'bg-white border border-slate-200 text-slate-800')} p-2.5 text-xs leading-relaxed shadow-sm rounded-r-xl rounded-bl-xl">
                                 ${chat.text}
                             </div>
                         </div>
@@ -712,53 +1023,99 @@
             if (isScrolledToBottom) box.scrollTop = box.scrollHeight;
         }
 
+        window.updateFirebaseStatus = async function(collectionName, docId, newStatus) {
+            if(!isAdmin) return showToast("Ditolak", "Hanya Admin yang berhak memvalidasi.", false);
+            try {
+                await updateDoc(doc(db, collectionName, docId), { status: newStatus });
+                showToast("Berhasil", "Status dokumen diperbarui.");
+            } catch (e) {
+                showToast("Gagal", "Terjadi kesalahan server.", false);
+            }
+        }
+
+        function getStatusBadge(status) {
+            if (status.includes('Hadir') || status === 'Disetujui') return 'bg-emerald-100 text-emerald-800';
+            if (status === 'Pending') return 'bg-amber-100 text-amber-800';
+            if (status === 'Izin' || status === 'Sakit') return 'bg-blue-100 text-blue-800';
+            return 'bg-red-100 text-red-800';
+        }
+
         function renderPresensi(data) {
             const tbody = document.getElementById('presensiTableBody');
             tbody.innerHTML = '';
             data.forEach(req => {
-                let statusBadge = req.status.includes('Hadir') ? 'bg-green-100 text-green-700' : 
-                                 req.status === 'Izin' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700';
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="p-3 border-b text-[11px] text-slate-500">${req.waktu}</td>
-                        <td class="p-3 border-b font-medium text-slate-800">${req.nama}</td>
-                        <td class="p-3 border-b"><span class="px-2.5 py-0.5 text-[10px] rounded-full font-bold ${statusBadge}">${req.status}</span></td>
-                        <td class="p-3 border-b text-xs text-slate-600">${req.ket}</td>
+                    <tr class="hover:bg-slate-100/80 transition-colors">
+                        <td class="p-2.5 font-medium text-[11px] text-slate-600">${req.waktu}</td>
+                        <td class="p-2.5 font-bold text-navy-900">${req.nama}</td>
+                        <td class="p-2.5"><span class="px-2 py-0.5 text-[10px] rounded-md font-bold ${getStatusBadge(req.status)}">${req.status}</span></td>
+                        <td class="p-2.5 text-slate-600">${req.ket}</td>
                     </tr>`;
             });
         }
 
-        window.updateFirebaseStatus = async function(collectionName, docId, newStatus) {
-            if(!isAdmin) return showToast("Hanya admin yang bisa mengubah status", false);
-            try {
-                await updateDoc(doc(db, collectionName, docId), { status: newStatus });
-                showToast("Status berhasil diupdate!");
-            } catch (e) {
-                showToast("Gagal update status", false);
+        function renderBackupRoster(presensiData = []) {
+            const container = document.getElementById('backupRosterStatus');
+            container.innerHTML = '';
+            
+            students.forEach(s => {
+                let latestPresensi = presensiData.find(p => p.nama === s.name);
+                let statusText = latestPresensi ? latestPresensi.status : "Belum Absen";
+                let badgeClass = latestPresensi ? getStatusBadge(latestPresensi.status) : "bg-slate-100 text-slate-600";
+
+                container.innerHTML += `
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-7 h-7 rounded-full bg-navy-800 text-white flex items-center justify-center font-bold text-xs">${s.name.charAt(0)}</div>
+                            <div>
+                                <p class="text-xs font-bold text-navy-900">${s.name}</p>
+                                <p class="text-[9px] text-slate-400">NIM. ${s.id}</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-0.5 text-[9px] font-bold rounded-md ${badgeClass}">${statusText}</span>
+                    </div>`;
+            });
+        }
+
+        function renderBackupLogs(data) {
+            const tbody = document.getElementById('backupTableBody');
+            tbody.innerHTML = '';
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada data pengalihan jadwal.</td></tr>`;
+                return;
             }
+            data.forEach(b => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-100/80 transition-colors">
+                        <td class="p-2.5 text-slate-500 font-medium">${b.waktu}</td>
+                        <td class="p-2.5 font-bold text-red-600">${b.petugasAwal}</td>
+                        <td class="p-2.5 text-slate-600">${b.alasan}</td>
+                        <td class="p-2.5 font-bold text-bk-700"><i class="fas fa-shield-halved text-bk-500 mr-1"></i>${b.petugasBackup}</td>
+                        <td class="p-2.5 font-bold text-navy-900">${b.pos}</td>
+                    </tr>`;
+            });
         }
 
         function renderRooms(data) {
             const tbody = document.getElementById('roomTableBody');
             tbody.innerHTML = '';
             data.forEach(req => {
-                let statusBadge = req.status === 'Pending' ? 'bg-amber-100 text-amber-700' : 
-                                 req.status === 'Disetujui' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
-
                 let actionHtml = '';
                 if(isAdmin && req.status === 'Pending') {
                     actionHtml = `
-                        <button onclick="updateFirebaseStatus('rooms', '${req.id}', 'Disetujui')" class="text-white bg-green-500 hover:bg-green-600 px-2 py-1 rounded text-xs mr-1 font-semibold">Setuju</button>
-                        <button onclick="updateFirebaseStatus('rooms', '${req.id}', 'Ditolak')" class="text-white bg-red-500 hover:bg-red-600 px-2 py-1 rounded text-xs font-semibold">Tolak</button>`;
+                        <button onclick="updateFirebaseStatus('rooms', '${req.id}', 'Disetujui')" class="text-white bg-emerald-600 hover:bg-emerald-700 px-2 py-1 rounded text-[10px] font-bold mr-1">Valid</button>
+                        <button onclick="updateFirebaseStatus('rooms', '${req.id}', 'Ditolak')" class="text-white bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-[10px] font-bold">Tolak</button>`;
                 }
-
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="p-3 border-b text-xs text-slate-700">${req.tanggal} <br><span class="font-bold text-ocean-600">${req.jam}</span></td>
-                        <td class="p-3 border-b font-medium text-slate-800">${req.konselor}</td>
-                        <td class="p-3 border-b text-xs text-slate-600">${req.klien} <br><span class="text-[10px] text-slate-400">(${req.ket})</span></td>
-                        <td class="p-3 border-b"><span class="px-2.5 py-0.5 text-[10px] rounded-full font-bold ${statusBadge}">${req.status}</span></td>
-                        <td class="p-3 border-b admin-only-col ${isAdmin ? '' : 'hidden'}">${actionHtml}</td>
+                    <tr class="hover:bg-slate-100/80 transition-colors">
+                        <td class="p-2.5">
+                            <span class="block font-bold text-navy-900">${req.tanggal}</span>
+                            <span class="text-[10px] text-bk-700 font-bold bg-bk-50 px-2 py-0.5 rounded-full mt-0.5 inline-block">${req.jam} WIB</span>
+                        </td>
+                        <td class="p-2.5 font-bold text-navy-900">${req.konselor}</td>
+                        <td class="p-2.5 text-slate-600"><span class="font-bold text-slate-800">${req.klien}</span><br><span class="text-[10px]">${req.ket}</span></td>
+                        <td class="p-2.5"><span class="px-2 py-0.5 text-[10px] rounded-md font-bold ${getStatusBadge(req.status)}">${req.status}</span></td>
+                        <td class="p-2.5 admin-only-col ignore-print ${isAdmin ? '' : 'hidden'}">${actionHtml}</td>
                     </tr>`;
             });
         }
@@ -767,23 +1124,19 @@
             const tbody = document.getElementById('swapTableBody');
             tbody.innerHTML = '';
             data.forEach(req => {
-                let statusBadge = req.status === 'Pending' ? 'bg-amber-100 text-amber-700' : 
-                                 req.status === 'Disetujui' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
-
                 let actionHtml = '';
                 if(isAdmin && req.status === 'Pending') {
                     actionHtml = `
-                        <button onclick="updateFirebaseStatus('swaps', '${req.id}', 'Disetujui')" class="text-white bg-green-500 hover:bg-green-600 px-2 py-1 rounded text-xs mr-1 font-semibold">Setuju</button>
-                        <button onclick="updateFirebaseStatus('swaps', '${req.id}', 'Ditolak')" class="text-white bg-red-500 hover:bg-red-600 px-2 py-1 rounded text-xs font-semibold">Tolak</button>`;
+                        <button onclick="updateFirebaseStatus('swaps', '${req.id}', 'Disetujui')" class="text-white bg-emerald-600 hover:bg-emerald-700 px-2 py-1 rounded text-[10px] font-bold mr-1">Setuju</button>
+                        <button onclick="updateFirebaseStatus('swaps', '${req.id}', 'Ditolak')" class="text-white bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-[10px] font-bold">Tolak</button>`;
                 }
-
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="p-3 border-b font-semibold text-ocean-600">${req.pemohon}</td>
-                        <td class="p-3 border-b font-semibold text-purple-600">${req.pengganti}</td>
-                        <td class="p-3 border-b text-xs text-slate-600">${req.tglAsal}<br><span class="text-[10px] italic text-slate-400">"${req.alasan}"</span></td>
-                        <td class="p-3 border-b"><span class="px-2.5 py-0.5 text-[10px] rounded-full font-bold ${statusBadge}">${req.status}</span></td>
-                        <td class="p-3 border-b admin-only-col ${isAdmin ? '' : 'hidden'}">${actionHtml}</td>
+                    <tr class="hover:bg-slate-100/80 transition-colors">
+                        <td class="p-2.5 font-bold text-navy-900">${req.pemohon}</td>
+                        <td class="p-2.5 font-bold text-bk-700">${req.pengganti}</td>
+                        <td class="p-2.5 text-slate-600"><span class="font-bold">${req.tglAsal}</span><br><span class="text-[10px] italic">"${req.alasan}"</span></td>
+                        <td class="p-2.5"><span class="px-2 py-0.5 text-[10px] rounded-md font-bold ${getStatusBadge(req.status)}">${req.status}</span></td>
+                        <td class="p-2.5 admin-only-col ignore-print ${isAdmin ? '' : 'hidden'}">${actionHtml}</td>
                     </tr>`;
             });
         }
@@ -791,9 +1144,7 @@
         window.generateSchedule = async function() {
             if(!isAdmin) return;
             const datePicker = document.getElementById('startDatePicker');
-            if(!datePicker.value) {
-                return showToast("Tentukan tanggal hari Senin dulu!", false);
-            }
+            if(!datePicker.value) return showToast("Peringatan", "Pilih tanggal hari Senin terlebih dahulu.", false);
             
             let startDate = new Date(datePicker.value);
             const shuffle = (array) => {
@@ -809,7 +1160,7 @@
                 let dailyStudents = shuffle([...students]);
                 let currentDate = new Date(startDate);
                 currentDate.setDate(currentDate.getDate() + dayOffsets[day]);
-                let dateString = currentDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                let dateString = currentDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
                 let dayData = { day: day, date: dateString, posData: [], standbyData: [] };
                 for(let i=0; i<5; i++) {
@@ -821,76 +1172,208 @@
 
             try {
                 await setDoc(doc(db, `schedule`, 'current'), { days: generatedDays });
-                showToast("Jadwal baru berhasil dibuat!");
+                showToast("Sukses", "Algoritma penjadwalan piket berhasil dijalankan.");
             } catch (e) {
-                showToast("Gagal menyimpan jadwal ke cloud", false);
+                showToast("Gagal", "Tidak dapat menyimpan jadwal ke server.", false);
             }
         };
 
         function renderSchedule(scheduleData) {
-            const container = document.getElementById('scheduleContainer');
+            const container = document.getElementById('printableSchedule');
             if(!scheduleData || !scheduleData.days) {
                 container.innerHTML = `
-                    <div class="col-span-full text-center text-slate-400 py-12 bg-white rounded-2xl border border-dashed border-slate-300">
-                        <i class="fas fa-calendar-times text-3xl mb-2 text-slate-300"></i>
-                        <p class="text-xs">Jadwal belum tersedia. Menunggu Admin membuat jadwal baru.</p>
+                    <div class="col-span-full text-center py-10 bg-white rounded-2xl border border-dashed border-slate-300">
+                        <i class="fas fa-calendar-xmark text-3xl mb-2 text-slate-300"></i>
+                        <p class="text-xs font-bold text-slate-600">Jadwal piket belum terbit.</p>
+                        <p class="text-[10px] text-slate-400">Menunggu Admin (Ketua PPL) melakukan generate jadwal baru.</p>
                     </div>`;
                 return;
             }
 
             container.innerHTML = '';
             scheduleData.days.forEach(d => {
-                let dateHtml = d.date ? `<div class="text-[10px] text-white/90 font-medium bg-black/20 inline-block px-2.5 py-0.5 rounded-full mt-1"><i class="far fa-calendar-alt mr-1"></i> ${d.date}</div>` : '';
+                let dateHtml = d.date ? `<div class="text-[10px] text-white/90 font-medium bg-black/20 inline-block px-2.5 py-0.5 rounded-md mt-1"><i class="far fa-calendar-alt mr-1"></i> ${d.date}</div>` : '';
                 
                 let cardHTML = `
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="bg-gradient-to-r from-ocean-600 to-brand-500 text-white text-center py-3">
-                        <div class="font-bold text-sm tracking-wide uppercase">${d.day}</div>
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col hover-card">
+                    <div class="bg-navy-900 text-white text-center py-3 px-2">
+                        <div class="font-black text-base tracking-wider uppercase">${d.day}</div>
                         ${dateHtml}
                     </div>
-                    <div class="p-4 space-y-3">`;
+                    <div class="p-4 space-y-3 flex-1 flex flex-col">
+                        <div class="space-y-2 flex-1">`;
 
                 d.posData.forEach(p => {
                     cardHTML += `
-                        <div class="flex justify-between items-center border-b border-slate-100 pb-1.5">
-                            <span class="text-[10px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded uppercase">${p.pos}</span>
-                            <span class="text-xs font-medium text-slate-700 text-right">${p.name}</span>
+                        <div class="flex justify-between items-center border-b border-slate-50 pb-1.5">
+                            <span class="text-[9px] font-bold text-bk-800 bg-bk-50 px-2 py-0.5 rounded uppercase">${p.pos}</span>
+                            <span class="text-xs font-bold text-slate-800 text-right">${p.name}</span>
                         </div>`;
                 });
                 
                 cardHTML += `
-                        <div class="mt-4 pt-2.5 bg-amber-50/70 rounded-xl p-3 border border-amber-100">
-                            <span class="text-[10px] font-bold text-amber-700 block mb-1 uppercase tracking-wider"><i class="fas fa-shield-alt"></i> Cadangan (Ruang BK)</span>
-                            <span class="text-xs font-medium text-slate-700 block mb-0.5">• ${d.standbyData[0]}</span>
-                            <span class="text-xs font-medium text-slate-700 block">• ${d.standbyData[1]}</span>
+                        </div>
+                        <div class="mt-3 pt-2.5 bg-slate-50 rounded-xl p-3 border border-slate-100">
+                            <span class="text-[9px] font-bold text-slate-500 block mb-1 uppercase tracking-wider"><i class="fas fa-shield-halved mr-1 text-bk-600"></i> Cadangan / Piket Ruang BK</span>
+                            <span class="text-xs font-bold text-navy-900 block">• ${d.standbyData[0]}</span>
+                            <span class="text-xs font-bold text-navy-900 block">• ${d.standbyData[1]}</span>
                         </div>
                     </div></div>`;
                 container.innerHTML += cardHTML;
             });
         }
 
+        window.generatePDF = function(type) {
+            showToast("Memproses PDF", "Menyiapkan Dokumen Resmi...");
+            const printContainer = document.getElementById('print-container');
+            const pdfTitle = document.getElementById('pdf-title');
+            const pdfContent = document.getElementById('pdf-content');
+            
+            const today = new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'});
+            document.getElementById('pdf-date').innerText = today;
+            document.getElementById('pdf-num-val').innerText = Math.floor(100 + Math.random() * 900);
+
+            pdfContent.innerHTML = '';
+            let filename = '';
+
+            if (type === 'Presensi') {
+                pdfTitle.innerText = "LAPORAN REKAPITULASI KEHADIRAN PPL BK";
+                filename = "Rekap_Kehadiran_PPL_BK_SMAN12";
+                let tableClone = document.getElementById('tablePresensiSource').cloneNode(true);
+                pdfContent.appendChild(tableClone);
+                
+            } else if (type === 'Ruangan') {
+                pdfTitle.innerText = "LAPORAN LOG PENGGUNAAN RUANG KONSELING";
+                filename = "Log_Ruang_BK_SMAN12";
+                let tableClone = document.getElementById('tableRuanganSource').cloneNode(true);
+                tableClone.querySelectorAll('.ignore-print').forEach(el => el.remove());
+                pdfContent.appendChild(tableClone);
+
+            } else if (type === 'Tukar') {
+                pdfTitle.innerText = "REKAPITULASI SURAT PERSETUJUAN TUKAR JADWAL PIKET";
+                filename = "Rekap_Tukar_Jadwal_SMAN12";
+                let tableClone = document.getElementById('tableTukarSource').cloneNode(true);
+                tableClone.querySelectorAll('.ignore-print').forEach(el => el.remove());
+                pdfContent.appendChild(tableClone);
+
+            } else if (type === 'Backup') {
+                pdfTitle.innerText = "LAPORAN RIWAYAT PENGALIHAN PIKET AUTOMATIS (BACKUP)";
+                filename = "Log_Backup_Piket_SMAN12";
+                let tableClone = document.getElementById('tableBackupSource').cloneNode(true);
+                pdfContent.appendChild(tableClone);
+
+            } else if (type === 'Jadwal') {
+                pdfTitle.innerText = "SURAT KEPUTUSAN PENUGASAN JADWAL PIKET PPL BK";
+                filename = "SK_Jadwal_Piket_SMAN12";
+                
+                const scheduleData = document.getElementById('printableSchedule');
+                if(scheduleData.innerText.includes('belum terbit')) {
+                    return showToast("Gagal", "Jadwal belum tersedia untuk dicetak.", false);
+                }
+                
+                let htmlStr = `<table class="w-full text-left text-xs border-collapse">
+                    <thead><tr>
+                        <th class="border border-black p-2 bg-gray-100 font-bold">Hari / Tanggal</th>
+                        <th class="border border-black p-2 bg-gray-100 font-bold">Nama Petugas Mahasiswa</th>
+                        <th class="border border-black p-2 bg-gray-100 font-bold">Pos Penugasan</th>
+                    </tr></thead><tbody>`;
+                
+                const cards = scheduleData.children;
+                for(let i=0; i<cards.length; i++) {
+                    let header = cards[i].querySelector('.bg-navy-900').innerText.split('\n');
+                    let dayDate = `${header[0]} ${header[1] || ''}`;
+                    
+                    let posDivs = cards[i].querySelectorAll('.border-slate-50');
+                    posDivs.forEach((div, idx) => {
+                        let pos = div.querySelector('span:nth-child(1)').innerText;
+                        let name = div.querySelector('span:nth-child(2)').innerText;
+                        htmlStr += `<tr>
+                            ${idx === 0 ? `<td class="border border-black p-2 font-bold" rowspan="7">${dayDate}</td>` : ''}
+                            <td class="border border-black p-2">${name}</td>
+                            <td class="border border-black p-2">${pos}</td>
+                        </tr>`;
+                    });
+                    
+                    let standby = cards[i].querySelector('.bg-slate-50').innerText.split('\n');
+                    htmlStr += `
+                        <tr>
+                            <td class="border border-black p-2">${standby[1].replace('• ', '')}</td>
+                            <td class="border border-black p-2">Piket Cadangan / Ruang BK</td>
+                        </tr>
+                        <tr>
+                            <td class="border border-black p-2">${standby[2].replace('• ', '')}</td>
+                            <td class="border border-black p-2">Piket Cadangan / Ruang BK</td>
+                        </tr>`;
+                }
+                htmlStr += `</tbody></table>`;
+                pdfContent.innerHTML = htmlStr;
+            }
+
+            pdfContent.querySelectorAll('table').forEach(tbl => {
+                tbl.classList.add('border-collapse', 'border', 'border-black', 'w-full');
+                tbl.querySelectorAll('th, td').forEach(cell => cell.classList.add('border', 'border-black', 'p-2'));
+                tbl.querySelectorAll('th').forEach(cell => cell.classList.add('bg-gray-100'));
+            });
+
+            const opt = {
+                margin:       10,
+                filename:     filename + '.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            printContainer.style.left = '0';
+            printContainer.style.zIndex = '9999';
+            
+            html2pdf().from(printContainer).set(opt).save().then(() => {
+                printContainer.style.left = '-9999px';
+                printContainer.style.zIndex = '-100';
+                showToast("Sukses", "Dokumen PDF berhasil diunduh.");
+            }).catch(err => {
+                printContainer.style.left = '-9999px';
+                showToast("Gagal", "Gagal mengeksport PDF.", false);
+            });
+        }
+
         window.switchTab = function(tabId) {
-            activeTab = tabId;
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('bg-white/10');
+                el.querySelector('i').classList.remove('text-bk-400', 'text-white');
+                el.querySelector('i').classList.add('text-slate-400');
+            });
+            const desktopBtns = document.querySelectorAll(`.nav-btn[onclick*="${tabId}"]`);
+            desktopBtns.forEach(btn => {
+                btn.classList.add('bg-white/10');
+                btn.querySelector('i').classList.add('text-bk-400');
+                btn.querySelector('i').classList.remove('text-slate-400');
+            });
+
             document.querySelectorAll('.nav-btn-mobile').forEach(el => {
-                el.classList.remove('text-brand-500');
+                el.classList.remove('text-bk-600');
                 el.classList.add('text-slate-400');
             });
             const mobileBtns = document.querySelectorAll(`.nav-btn-mobile[onclick*="${tabId}"]`);
             mobileBtns.forEach(btn => {
                 btn.classList.remove('text-slate-400');
-                btn.classList.add('text-brand-500');
+                btn.classList.add('text-bk-600');
             });
 
-            const titles = { dashboard: "Dashboard Admin", jadwal: "Jadwal & Tukar Piket", presensi: "Presensi Harian", ruangan: "Peminjaman Ruangan", diskusi: "Ruang Diskusi (Realtime)", 'ai-assistant': "Gemini AI BK" };
+            const titles = { 
+                dashboard: "Dashboard Utama", 
+                jadwal: "Administrasi Jadwal & Tukar Piket", 
+                backup: "Manajemen Backup & Pengalihan Piket",
+                presensi: "Sistem Kehadiran Mahasiswa", 
+                ruangan: "Reservasi Ruang Konseling BK", 
+                diskusi: "Forum Komunikasi Internal PPL" 
+            };
             document.getElementById('pageTitle').innerText = titles[tabId];
         }
 
-        window.onload = () => {
-            checkIdentity();
-        };
+        window.onload = () => checkIdentity();
     </script>
 </body>
 </html>
